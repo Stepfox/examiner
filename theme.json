@@ -739,7 +739,7 @@
 					"text": "var(--wp--preset--color--heading)"
 				},
 				"typography": {
-					"fontSize": "12px",
+					"fontSize": "28px",
 					"fontStyle": "normal",
 					"fontWeight": "800"
 				}
