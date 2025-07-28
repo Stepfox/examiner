@@ -51,7 +51,7 @@
 
     // Determine the block's CSS selector.
     let blockSelector = `#block-${props.clientId}`;
-    if (props.name === "stepfox/casino-query-block") {
+    if (props.attributes.customId) {
       blockSelector = `#block_${props.attributes.customId}`;
     }
 

@@ -168,6 +168,10 @@
                                         select_a_post: String(
                                             metafield_block.manual_selection[value][0].value
                                         ),
+                                        // Reset meta_field when post type changes to avoid invalid combinations
+                                        meta_field: metafield_block.metafields[value] && metafield_block.metafields[value][0] 
+                                            ? metafield_block.metafields[value][0].value 
+                                            : 'post_title'
                                     });
                                 }
                                 setAttributes({ post_type: value });
@@ -192,7 +196,10 @@
                         }),
                         el(SelectControl, {
                             label: "Field To Display",
-                            options: metafield_block.metafields[post_type],
+                            help: "Only fields registered for the selected post type are shown. (registered) = WordPress registered meta, (ACF) = ACF fields, (custom) = other custom fields",
+                            options: metafield_block.metafields[post_type] || [
+                                { value: 'post_title', label: 'post_title' }
+                            ],
                             onChange: value => setAttributes({ meta_field: value }),
                             value: attributes.meta_field,
                         }),

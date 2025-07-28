@@ -17,7 +17,12 @@
         ColorPalette,
         ColorPicker,
         Popover,
+        __experimentalGradientPicker: GradientPicker,
+        __experimentalColorGradientControl: ColorGradientControl,
+        GradientPicker: StableGradientPicker,
     } = wp.components;
+    
+    const { MediaUpload, MediaUploadCheck } = wp.blockEditor;
     
     const { InspectorControls } = wp.blockEditor;
 
@@ -91,6 +96,14 @@
             cursor_desktop: { type: "string", default: "" },
             user_select_desktop: { type: "string", default: "" },
             pointer_events_desktop: { type: "string", default: "" },
+            
+            // Text and Background colors
+            color_desktop: { type: "string", default: "" },
+            background_color_desktop: { type: "string", default: "" },
+            background_image_desktop: { type: "string", default: "" },
+            background_size_desktop: { type: "string", default: "" },
+            background_position_desktop: { type: "string", default: "" },
+            background_repeat_desktop: { type: "string", default: "" },
 
             // Tablet attributes - only the ones used in the form
             font_size_tablet: { type: "string", default: "" },
@@ -157,6 +170,14 @@
             cursor_tablet: { type: "string", default: "" },
             user_select_tablet: { type: "string", default: "" },
             pointer_events_tablet: { type: "string", default: "" },
+            
+            // Text and Background colors
+            color_tablet: { type: "string", default: "" },
+            background_color_tablet: { type: "string", default: "" },
+            background_image_tablet: { type: "string", default: "" },
+            background_size_tablet: { type: "string", default: "" },
+            background_position_tablet: { type: "string", default: "" },
+            background_repeat_tablet: { type: "string", default: "" },
 
             // Mobile attributes - only the ones used in the form
             font_size_mobile: { type: "string", default: "" },
@@ -223,6 +244,14 @@
             cursor_mobile: { type: "string", default: "" },
             user_select_mobile: { type: "string", default: "" },
             pointer_events_mobile: { type: "string", default: "" },
+            
+            // Text and Background colors
+            color_mobile: { type: "string", default: "" },
+            background_color_mobile: { type: "string", default: "" },
+            background_image_mobile: { type: "string", default: "" },
+            background_size_mobile: { type: "string", default: "" },
+            background_position_mobile: { type: "string", default: "" },
+            background_repeat_mobile: { type: "string", default: "" },
 
             // Hover attributes - only the ones used in the form
             font_size_hover: { type: "string", default: "" },
@@ -289,6 +318,14 @@
             cursor_hover: { type: "string", default: "" },
             user_select_hover: { type: "string", default: "" },
             pointer_events_hover: { type: "string", default: "" },
+            
+            // Text and Background colors
+            color_hover: { type: "string", default: "" },
+            background_color_hover: { type: "string", default: "" },
+            background_image_hover: { type: "string", default: "" },
+            background_size_hover: { type: "string", default: "" },
+            background_position_hover: { type: "string", default: "" },
+            background_repeat_hover: { type: "string", default: "" },
         };
         return settings;
     };
@@ -711,6 +748,222 @@
             border-radius: 3px !important;
             border: 1px solid #555 !important;
         }
+        
+        .color-section {
+            margin-bottom: 16px;
+        }
+        
+        .color-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #fff !important;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .media-upload-wrapper {
+            width: 100%;
+        }
+        
+        .media-upload-wrapper .components-base-control__label {
+            color: #fff !important;
+            font-size: 11px !important;
+            font-weight: 500 !important;
+            margin-bottom: 8px !important;
+            display: block;
+        }
+        
+        .image-selector-container {
+            background: #333;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 12px;
+            text-align: center;
+        }
+        
+        .image-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        
+        .image-buttons .components-button {
+            font-size: 12px !important;
+        }
+        
+        .background-control-wrapper {
+            width: 100%;
+        }
+        
+        .background-control-wrapper .components-base-control__label {
+            color: #fff !important;
+            font-size: 11px !important;
+            font-weight: 500 !important;
+            margin-bottom: 8px !important;
+            display: block;
+        }
+        
+        .background-control-wrapper .components-color-gradient-control {
+            background: #333 !important;
+            border: 1px solid #555 !important;
+            border-radius: 4px !important;
+        }
+        
+        .background-control-wrapper .components-color-gradient-control .components-tab-panel__tabs {
+            background: #333 !important;
+            border-bottom: 1px solid #555 !important;
+        }
+        
+        .background-control-wrapper .components-color-gradient-control .components-tab-panel__tab {
+            color: #fff !important;
+            background: transparent !important;
+            border: none !important;
+        }
+        
+        .background-control-wrapper .components-color-gradient-control .components-tab-panel__tab.is-active {
+            background: #667eea !important;
+            color: #fff !important;
+        }
+        
+        .background-control-wrapper .components-color-gradient-control .components-color-palette,
+        .background-control-wrapper .components-color-gradient-control .components-custom-gradient-picker {
+            background: #333 !important;
+            padding: 12px !important;
+        }
+        
+        .background-control-wrapper .components-color-gradient-control .components-gradient-picker {
+            background: #333 !important;
+        }
+        
+        .wp-background-picker-tabs {
+            background: #333 !important;
+            border: 1px solid #555 !important;
+            border-radius: 4px !important;
+            margin: 10px -16px;
+            padding: 12px !important;
+        }
+        
+        .wp-tab-buttons {
+            display: flex;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #555 !important;
+        }
+        
+        .wp-tab-btn {
+            background: transparent !important;
+            border: none !important;
+            color: #fff !important;
+            padding: 8px 16px !important;
+            cursor: pointer !important;
+            border-radius: 4px 4px 0 0 !important;
+            transition: background-color 0.2s ease !important;
+        }
+        
+        .wp-tab-btn:hover {
+            background: #444 !important;
+        }
+        
+        .wp-tab-btn.active {
+            background: #667eea !important;
+            color: #fff !important;
+        }
+        
+        .wp-tab-content {
+            margin-top: 8px;
+        }
+        
+        .wp-background-picker-tabs .components-custom-gradient-picker {
+            background: transparent !important;
+        }
+        
+        .wp-background-picker-tabs .components-gradient-picker {
+            background: #333 !important;
+            border: 1px solid #555 !important;
+            border-radius: 4px !important;
+            padding: 8px !important;
+        }
+        
+        .wp-background-picker-tabs .components-custom-gradient-picker .components-custom-gradient-picker__gradient-bar {
+            margin-bottom: 12px !important;
+        }
+        
+        .wp-background-picker-tabs .components-custom-gradient-picker .components-custom-gradient-picker__ui-line {
+            background: #444 !important;
+            padding: 8px !important;
+            border-radius: 4px !important;
+            margin-top: 8px !important;
+        }
+        
+        .wp-background-picker-tabs .components-circular-option-picker__option {
+            border: 2px solid #555 !important;
+        }
+        
+        .wp-background-picker-tabs .components-circular-option-picker__option[aria-selected="true"] {
+            border: 2px solid #667eea !important;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3) !important;
+        }
+        
+        .wp-background-picker-tabs .components-circular-option-picker__option:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+        }
+        
+
+        
+        /* Proper fix: Make text transparent to show gradients */
+        .wp-background-picker-tabs .components-circular-option-picker__option {
+            border: 2px solid #555 !important;
+            color: transparent !important;
+        }
+        
+        .wp-background-picker-tabs .components-circular-option-picker__option[aria-selected="true"] {
+            border-color: #667eea !important;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3) !important;
+        }
+        
+        .wp-background-picker-tabs .components-circular-option-picker__option:hover {
+            transform: scale(1.05) !important;
+        }
+        
+
+        
+        .wp-background-picker-tabs .components-text-control__input {
+            background: #444 !important;
+            border: 1px solid #666 !important;
+            color: #fff !important;
+            font-family: monospace !important;
+            font-size: 12px !important;
+        }
+        
+        .gradient-fallback {
+            margin-top: 8px;
+        }
+        
+        .gradient-presets {
+            margin-bottom: 12px;
+        }
+        
+        .preset-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+        
+        .preset-swatch {
+            transition: all 0.2s ease !important;
+        }
+        
+        .preset-swatch:hover {
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+        }
+        
+        .preset-swatch.selected {
+            border-color: #667eea !important;
+            box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3) !important;
+        }
     `;
 
     // Add styles to head
@@ -728,6 +981,17 @@
 
         const colorOptions = [
             '#667eea', '#764ba2', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24'
+        ];
+        
+        const gradientOptions = [
+            'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+            'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+            'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+            'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+            'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+            'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
         ];
 
         // Update selected color when device changes or component mounts
@@ -901,11 +1165,15 @@
                 ],
                 'typography': [
                     'font_size', 'line_height', 'letter_spacing', 'word_spacing', 'textAlign',
-                    'font_weight', 'font_style', 'text_transform', 'text_decoration', 'text_shadow'
+                    'font_weight', 'font_style', 'text_transform', 'text_decoration', 'text_shadow', 'color'
                 ],
                 'spacing': ['padding', 'margin'],
                 'borders': ['borderStyle', 'borderWidth', 'borderColor'],
                 'borderRadius': ['borderRadius'],
+                'background': [
+                    'background_color', 'background_image', 'background_size', 
+                    'background_position', 'background_repeat'
+                ],
                 'advanced': [
                     'flex_direction', 'justify', 'flexWrap', 'flex_grow', 'align_items', 
                     'align_self', 'align_content', 'transform', 'transition', 'box_shadow', 
@@ -963,13 +1231,14 @@
             // Define all possible attribute patterns for counting
             const simpleProperties = [
                 'font_size', 'line_height', 'letter_spacing', 'word_spacing', 'textAlign',
-                'font_weight', 'font_style', 'text_transform', 'text_decoration', 'text_shadow',
+                'font_weight', 'font_style', 'text_transform', 'text_decoration', 'text_shadow', 'color',
                 'width', 'height', 'min_width', 'max_width', 'min_height', 'max_height',
                 'box_sizing', 'visibility', 'float', 'clear', 'z_index', 'order',
                 'top', 'right', 'bottom', 'left', 'borderStyle', 'borderWidth', 'borderColor',
                 'flex_grow', 'align_items', 'align_self', 'align_content',
                 'transform', 'transition', 'box_shadow', 'filter', 'opacity', 'cursor',
-                'user_select', 'pointer_events'
+                'user_select', 'pointer_events', 'background_color', 'background_image', 
+                'background_size', 'background_position', 'background_repeat'
             ];
             
             const objectProperties = ['padding', 'margin', 'borderRadius', 'position', 'display'];
@@ -1448,6 +1717,55 @@
                             onChange: (value) => setAttribute('text_shadow', value),
                             placeholder: '2px 2px 4px rgba(0,0,0,0.5)'
                         })
+                    ),
+                    // Text Color Picker
+                    el('div', { className: 'input-row single' },
+                        el('div', { className: 'color-picker-section' },
+                            el('div', { className: 'color-picker-header' },
+                                el('span', { className: 'color-picker-label' }, 
+                                    getAttribute('color') ? `Text Color: ${getAttribute('color')}` : 'No text color selected'
+                                )
+                            ),
+                            el('div', { className: 'color-picker-grid' },
+                                // Clear color option
+                                el('div', {
+                                    key: 'text-clear',
+                                    className: `color-swatch clear-color ${getAttribute('color') === '' ? 'selected' : ''}`,
+                                    style: { 
+                                        background: 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)',
+                                        backgroundSize: '8px 8px',
+                                        backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px'
+                                    },
+                                    onClick: () => {
+                                        setAttribute('color', '');
+                                    }
+                                }),
+                                ...colorOptions.map(color =>
+                                    el('div', {
+                                        key: 'text-' + color,
+                                        className: `color-swatch ${getAttribute('color') === color ? 'selected' : ''}`,
+                                        style: { backgroundColor: color },
+                                        onClick: () => {
+                                            setAttribute('color', color);
+                                        }
+                                    })
+                                )
+                            ),
+                            // Custom Text Color Picker
+                            el('div', { className: 'custom-color-picker' },
+                                el('div', { className: 'color-picker-label' }, 'Custom Text Color:'),
+                                el(ColorPalette, {
+                                    value: getAttribute('color'),
+                                    onChange: (color) => {
+                                        const colorValue = color || '';
+                                        setAttribute('color', colorValue);
+                                    },
+                                    colors: [],
+                                    disableCustomColors: false,
+                                    clearable: true
+                                })
+                            )
+                        )
                     )
                 ),
 
@@ -1898,6 +2216,255 @@
                             onChange: (value) => setAttribute('pointer_events', value)
                         })
                     )
+                ),
+
+                // Background Panel
+                el(PanelBody, {
+                    title: el('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', position: 'relative' } },
+                        el('span', { style: { fontSize: '16px' } }, '🎨'),
+                        'Background',
+                        countPanelAttributes('background') > 0 && el('span', {
+                            style: {
+                                marginLeft: 'auto',
+                                background: '#667eea',
+                                color: 'white',
+                                borderRadius: '50%',
+                                width: '18px',
+                                height: '18px',
+                                fontSize: '10px',
+                                fontWeight: 'bold',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                border: '1px solid #333',
+                                padding: '1px'
+                            }
+                        }, countPanelAttributes('background'))
+                    ),
+                    initialOpen: false,
+                    className: 'modern-responsive-panel'
+                },
+                    // Background Color & Gradient
+                    el('div', { className: 'input-row single' },
+                        el('div', { className: 'background-control-wrapper' },
+                            el('label', { className: 'components-base-control__label' }, 'Background'),
+                            
+                                                        // Background Color and Gradient Tabs
+                            el('div', { className: 'wp-background-picker-tabs' },
+                                // Tab buttons
+                                el('div', { className: 'wp-tab-buttons' },
+                                    el('button', {
+                                        className: `wp-tab-btn ${!getAttribute('background_color').includes('gradient') ? 'active' : ''}`,
+                                        onClick: () => {
+                                            if (getAttribute('background_color').includes('gradient')) {
+                                                setAttribute('background_color', '');
+                                            }
+                                        }
+                                    }, 'Color'),
+                                    el('button', {
+                                        className: `wp-tab-btn ${getAttribute('background_color').includes('gradient') ? 'active' : ''}`,
+                                        onClick: () => {
+                                            if (!getAttribute('background_color').includes('gradient')) {
+                                                setAttribute('background_color', 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)');
+                                            }
+                                        }
+                                    }, 'Gradient')
+                                ),
+                                
+                                // Tab content
+                                el('div', { className: 'wp-tab-content' },
+                                    !getAttribute('background_color').includes('gradient') ?
+                                        // Color Tab
+                                        el(ColorPalette, {
+                                            value: getAttribute('background_color'),
+                                            onChange: (color) => setAttribute('background_color', color || ''),
+                                            colors: [
+                                                { name: 'Primary', color: '#667eea' },
+                                                { name: 'Secondary', color: '#764ba2' },
+                                                { name: 'Red', color: '#ff6b6b' },
+                                                { name: 'Teal', color: '#4ecdc4' },
+                                                { name: 'Blue', color: '#45b7d1' },
+                                                { name: 'Yellow', color: '#f9ca24' },
+                                                { name: 'White', color: '#ffffff' },
+                                                { name: 'Black', color: '#000000' }
+                                            ],
+                                            clearable: true
+                                        }) :
+                                                                                // Gradient Tab - Using WordPress GradientPicker
+                                        (GradientPicker || StableGradientPicker) ?
+                                            el(GradientPicker || StableGradientPicker, {
+                                                value: getAttribute('background_color'),
+                                                onChange: (gradient) => setAttribute('background_color', gradient || ''),
+                                                gradients: [
+                                                    {
+                                                        name: 'Vivid cyan blue to vivid purple',
+                                                        gradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)',
+                                                        slug: 'vivid-cyan-blue-to-vivid-purple'
+                                                    },
+                                                    {
+                                                        name: 'Light green cyan to vivid green cyan',
+                                                        gradient: 'linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%)',
+                                                        slug: 'light-green-cyan-to-vivid-green-cyan'
+                                                    },
+                                                    {
+                                                        name: 'Luminous vivid amber to luminous vivid orange',
+                                                        gradient: 'linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%)',
+                                                        slug: 'luminous-vivid-amber-to-luminous-vivid-orange'
+                                                    },
+                                                    {
+                                                        name: 'Luminous vivid orange to vivid red',
+                                                        gradient: 'linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%)',
+                                                        slug: 'luminous-vivid-orange-to-vivid-red'
+                                                    },
+                                                    {
+                                                        name: 'Very light gray to cyan bluish gray',
+                                                        gradient: 'linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%)',
+                                                        slug: 'very-light-gray-to-cyan-bluish-gray'
+                                                    },
+                                                    {
+                                                        name: 'Cool to warm spectrum',
+                                                        gradient: 'linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%)',
+                                                        slug: 'cool-to-warm-spectrum'
+                                                    }
+                                                ],
+                                                __nextHasNoMargin: true
+                                            }) :
+                                            // Enhanced fallback if GradientPicker not available
+                                            el('div', { className: 'gradient-fallback' },
+                                                                                                    el('div', { className: 'gradient-presets' },
+                                                        el('label', { 
+                                                            style: { 
+                                                                color: '#fff', 
+                                                                fontSize: '12px', 
+                                                                marginBottom: '8px', 
+                                                                display: 'block' 
+                                                            } 
+                                                        }, 'Gradient Presets'),
+                                                        el('div', { className: 'preset-grid' },
+                                                            [
+                                                                { name: 'Purple Blue', gradient: 'linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%)' },
+                                                                { name: 'Green Cyan', gradient: 'linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%)' },
+                                                                { name: 'Purple Pink', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+                                                                { name: 'Orange Red', gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' }
+                                                            ].map((preset, index) =>
+                                                                el('div', {
+                                                                    key: 'preset-' + index,
+                                                                    className: `preset-swatch ${getAttribute('background_color') === preset.gradient ? 'selected' : ''}`,
+                                                                    style: { 
+                                                                        background: preset.gradient,
+                                                                        width: '60px',
+                                                                        height: '30px',
+                                                                        borderRadius: '4px',
+                                                                        cursor: 'pointer',
+                                                                        margin: '4px',
+                                                                        border: '2px solid transparent',
+                                                                        display: 'inline-block'
+                                                                    },
+                                                                    onClick: () => setAttribute('background_color', preset.gradient),
+                                                                    title: preset.name
+                                                                })
+                                                            )
+                                                        )
+                                                    ),
+                                                    el(TextControl, {
+                                                        label: 'Custom Gradient',
+                                                        value: getAttribute('background_color'),
+                                                        onChange: (value) => setAttribute('background_color', value),
+                                                        placeholder: 'linear-gradient() or radial-gradient()'
+                                                    })
+                                            )
+                                )
+                            )
+                        )
+                    ),
+                    
+                    // Background Image and Properties
+                    el('div', { className: 'input-row' },
+                        el('div', { className: 'media-upload-wrapper' },
+                            el('label', { className: 'components-base-control__label' }, 'Background Image'),
+                            el(MediaUploadCheck, {},
+                                el(MediaUpload, {
+                                    onSelect: (media) => {
+                                        setAttribute('background_image', media.url);
+                                    },
+                                    allowedTypes: ['image'],
+                                    value: getAttribute('background_image'),
+                                    render: ({ open }) => 
+                                        el('div', { className: 'image-selector-container' },
+                                            getAttribute('background_image') && 
+                                                el('img', {
+                                                    src: getAttribute('background_image'),
+                                                    style: { 
+                                                        width: '100px', 
+                                                        height: '100px', 
+                                                        objectFit: 'cover', 
+                                                        borderRadius: '4px', 
+                                                        marginBottom: '8px',
+                                                        display: 'block'
+                                                    }
+                                                }),
+                                            el('div', { className: 'image-buttons' },
+                                                el(Button, {
+                                                    onClick: open,
+                                                    variant: 'secondary',
+                                                    style: { marginRight: '8px' }
+                                                }, getAttribute('background_image') ? 'Replace Image' : 'Select Image'),
+                                                getAttribute('background_image') &&
+                                                    el(Button, {
+                                                        onClick: () => setAttribute('background_image', ''),
+                                                        variant: 'tertiary',
+                                                        isDestructive: true
+                                                    }, 'Remove')
+                                            )
+                                        )
+                                })
+                            )
+                        ),
+                        el(SelectControl, {
+                            label: 'Background Size',
+                            value: getAttribute('background_size'),
+                            options: [
+                                { label: 'Default', value: '' },
+                                { label: 'Auto', value: 'auto' },
+                                { label: 'Cover', value: 'cover' },
+                                { label: 'Contain', value: 'contain' },
+                                { label: '100%', value: '100%' },
+                                { label: '100% 100%', value: '100% 100%' }
+                            ],
+                            onChange: (value) => setAttribute('background_size', value)
+                        })
+                    ),
+                    el('div', { className: 'input-row' },
+                        el(SelectControl, {
+                            label: 'Background Position',
+                            value: getAttribute('background_position'),
+                            options: [
+                                { label: 'Default', value: '' },
+                                { label: 'Center', value: 'center' },
+                                { label: 'Top', value: 'top' },
+                                { label: 'Bottom', value: 'bottom' },
+                                { label: 'Left', value: 'left' },
+                                { label: 'Right', value: 'right' },
+                                { label: 'Top Left', value: 'top left' },
+                                { label: 'Top Right', value: 'top right' },
+                                { label: 'Bottom Left', value: 'bottom left' },
+                                { label: 'Bottom Right', value: 'bottom right' }
+                            ],
+                            onChange: (value) => setAttribute('background_position', value)
+                        }),
+                        el(SelectControl, {
+                            label: 'Background Repeat',
+                            value: getAttribute('background_repeat'),
+                            options: [
+                                { label: 'Default', value: '' },
+                                { label: 'No Repeat', value: 'no-repeat' },
+                                { label: 'Repeat', value: 'repeat' },
+                                { label: 'Repeat X', value: 'repeat-x' },
+                                { label: 'Repeat Y', value: 'repeat-y' }
+                            ],
+                            onChange: (value) => setAttribute('background_repeat', value)
+                        })
+                    )
                 )
             )
         );
@@ -1967,6 +2534,12 @@
                 ${getAttr('cursor_desktop') ? `cursor: ${getAttr('cursor_desktop')} !important;` : ''}
                 ${getAttr('user_select_desktop') ? `user-select: ${getAttr('user_select_desktop')} !important;` : ''}
                 ${getAttr('pointer_events_desktop') ? `pointer-events: ${getAttr('pointer_events_desktop')} !important;` : ''}
+                ${getAttr('color_desktop') ? `color: ${getAttr('color_desktop')} !important;` : ''}
+                ${getAttr('background_color_desktop') ? (getAttr('background_color_desktop').includes('gradient') ? `background: ${getAttr('background_color_desktop')} !important;` : `background-color: ${getAttr('background_color_desktop')} !important;`) : ''}
+                ${getAttr('background_image_desktop') ? `background-image: ${getAttr('background_image_desktop').startsWith('url(') ? getAttr('background_image_desktop') : `url(${getAttr('background_image_desktop')})`} !important;` : ''}
+                ${getAttr('background_size_desktop') ? `background-size: ${getAttr('background_size_desktop')} !important;` : ''}
+                ${getAttr('background_position_desktop') ? `background-position: ${getAttr('background_position_desktop')} !important;` : ''}
+                ${getAttr('background_repeat_desktop') ? `background-repeat: ${getAttr('background_repeat_desktop')} !important;` : ''}
                 ${getAttr('desktop_padding')?.top ? `padding-top: ${getAttr('desktop_padding').top} !important;` : ''}
                 ${getAttr('desktop_padding')?.right ? `padding-right: ${getAttr('desktop_padding').right} !important;` : ''}
                 ${getAttr('desktop_padding')?.bottom ? `padding-bottom: ${getAttr('desktop_padding').bottom} !important;` : ''}
@@ -2034,6 +2607,12 @@
                     ${getAttr('cursor_tablet') ? `cursor: ${getAttr('cursor_tablet')} !important;` : ''}
                     ${getAttr('user_select_tablet') ? `user-select: ${getAttr('user_select_tablet')} !important;` : ''}
                     ${getAttr('pointer_events_tablet') ? `pointer-events: ${getAttr('pointer_events_tablet')} !important;` : ''}
+                    ${getAttr('color_tablet') ? `color: ${getAttr('color_tablet')} !important;` : ''}
+                    ${getAttr('background_color_tablet') ? (getAttr('background_color_tablet').includes('gradient') ? `background: ${getAttr('background_color_tablet')} !important;` : `background-color: ${getAttr('background_color_tablet')} !important;`) : ''}
+                    ${getAttr('background_image_tablet') ? `background-image: ${getAttr('background_image_tablet').startsWith('url(') ? getAttr('background_image_tablet') : `url(${getAttr('background_image_tablet')})`} !important;` : ''}
+                    ${getAttr('background_size_tablet') ? `background-size: ${getAttr('background_size_tablet')} !important;` : ''}
+                    ${getAttr('background_position_tablet') ? `background-position: ${getAttr('background_position_tablet')} !important;` : ''}
+                    ${getAttr('background_repeat_tablet') ? `background-repeat: ${getAttr('background_repeat_tablet')} !important;` : ''}
                     ${getAttr('tablet_padding')?.top ? `padding-top: ${getAttr('tablet_padding').top} !important;` : ''}
                     ${getAttr('tablet_padding')?.right ? `padding-right: ${getAttr('tablet_padding').right} !important;` : ''}
                     ${getAttr('tablet_padding')?.bottom ? `padding-bottom: ${getAttr('tablet_padding').bottom} !important;` : ''}
@@ -2078,6 +2657,12 @@
                     ${getAttr('mobile_borderStyle') ? `border-style: ${getAttr('mobile_borderStyle')} !important;` : ''}
                     ${getAttr('mobile_borderColor') ? `border-color: ${getAttr('mobile_borderColor')} !important;` : ''}
                     ${getAttr('borderWidth_mobile') ? `border-width: ${getAttr('borderWidth_mobile')} !important;` : ''}
+                    ${getAttr('color_mobile') ? `color: ${getAttr('color_mobile')} !important;` : ''}
+                    ${getAttr('background_color_mobile') ? (getAttr('background_color_mobile').includes('gradient') ? `background: ${getAttr('background_color_mobile')} !important;` : `background-color: ${getAttr('background_color_mobile')} !important;`) : ''}
+                    ${getAttr('background_image_mobile') ? `background-image: ${getAttr('background_image_mobile').startsWith('url(') ? getAttr('background_image_mobile') : `url(${getAttr('background_image_mobile')})`} !important;` : ''}
+                    ${getAttr('background_size_mobile') ? `background-size: ${getAttr('background_size_mobile')} !important;` : ''}
+                    ${getAttr('background_position_mobile') ? `background-position: ${getAttr('background_position_mobile')} !important;` : ''}
+                    ${getAttr('background_repeat_mobile') ? `background-repeat: ${getAttr('background_repeat_mobile')} !important;` : ''}
                     ${getAttr('mobile_padding')?.top ? `padding-top: ${getAttr('mobile_padding').top} !important;` : ''}
                     ${getAttr('mobile_padding')?.right ? `padding-right: ${getAttr('mobile_padding').right} !important;` : ''}
                     ${getAttr('mobile_padding')?.bottom ? `padding-bottom: ${getAttr('mobile_padding').bottom} !important;` : ''}
@@ -2119,6 +2704,12 @@
                 ${getAttr('transform_hover') ? `transform: ${getAttr('transform_hover')} !important;` : ''}
                 ${getAttr('transition_hover') ? `transition: ${getAttr('transition_hover')} !important;` : ''}
                 ${getAttr('hover_borderStyle') ? `border-style: ${getAttr('hover_borderStyle')} !important;` : ''}
+                ${getAttr('color_hover') ? `color: ${getAttr('color_hover')} !important;` : ''}
+                ${getAttr('background_color_hover') ? (getAttr('background_color_hover').includes('gradient') ? `background: ${getAttr('background_color_hover')} !important;` : `background-color: ${getAttr('background_color_hover')} !important;`) : ''}
+                ${getAttr('background_image_hover') ? `background-image: ${getAttr('background_image_hover').startsWith('url(') ? getAttr('background_image_hover') : `url(${getAttr('background_image_hover')})`} !important;` : ''}
+                ${getAttr('background_size_hover') ? `background-size: ${getAttr('background_size_hover')} !important;` : ''}
+                ${getAttr('background_position_hover') ? `background-position: ${getAttr('background_position_hover')} !important;` : ''}
+                ${getAttr('background_repeat_hover') ? `background-repeat: ${getAttr('background_repeat_hover')} !important;` : ''}
                 ${getAttr('hover_borderColor') ? `border-color: ${getAttr('hover_borderColor')} !important;` : ''}
                 ${getAttr('borderWidth_hover') ? `border-width: ${getAttr('borderWidth_hover')} !important;` : ''}
                 ${getAttr('hover_padding')?.top ? `padding-top: ${getAttr('hover_padding').top} !important;` : ''}

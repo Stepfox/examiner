@@ -158,24 +158,95 @@ function query_object_for_gutenberg_query()
             $post_types[] = array('label' => $post_type->label,
                 'value' => $post_type->name,);
         }
+
+        // Add default fields that are always available for any post type
+        $fields[$post_type->name][] = ["value"=> "counter", "label"=>"📊 counter (built-in)"];
+        $fields[$post_type->name][] = ["value"=> "post_title", "label"=>"📝 post_title (built-in)"];
+        $fields[$post_type->name][] = ["value"=> "post_content", "label"=>"📄 post_content (built-in)"];
+        $fields[$post_type->name][] = ["value"=> "post_excerpt", "label"=>"📋 post_excerpt (built-in)"];
+        $fields[$post_type->name][] = ["value"=> "featured_image", "label"=>"🖼️ featured_image (built-in)"];
+        $fields[$post_type->name][] = ["value"=> "month", "label"=>"📅 month (built-in)"];
+        $fields[$post_type->name][] = ["value"=> "permalink", "label"=>"🔗 permalink (built-in)"];
+
+        // Get registered meta fields for this specific post type
+        $registered_meta = get_registered_meta_keys('post', $post_type->name);
+        foreach($registered_meta as $meta_key => $meta_config) {
+            // Only add if it's meant to be shown in REST/editor and not an internal field
+            if ((!empty($meta_config['show_in_rest']) || !empty($meta_config['public'])) && 
+                substr($meta_key, 0, 1) !== '_' && substr($meta_key, 0, 6) !== 'field_') {
+                $fields[$post_type->name][] = ['value' => $meta_key, 'label' => '⚙️ ' . $meta_key . ' (registered)'];
+            }
+        }
+
+        // Get ACF fields if ACF is active and fields exist for this post type
+        if (function_exists('acf_get_field_groups')) {
+            $field_groups = acf_get_field_groups(array(
+                'post_type' => $post_type->name
+            ));
+            
+            foreach ($field_groups as $field_group) {
+                $acf_fields = acf_get_fields($field_group['key']);
+                if ($acf_fields) {
+                    foreach ($acf_fields as $acf_field) {
+                        // Get field type icon
+                        $field_icon = '🔧'; // default
+                        switch($acf_field['type']) {
+                            case 'text': $field_icon = '📝'; break;
+                            case 'textarea': $field_icon = '📄'; break;
+                            case 'number': $field_icon = '🔢'; break;
+                            case 'email': $field_icon = '📧'; break;
+                            case 'url': $field_icon = '🔗'; break;
+                            case 'image': $field_icon = '🖼️'; break;
+                            case 'date_picker': $field_icon = '📅'; break;
+                            case 'select': $field_icon = '📋'; break;
+                            case 'checkbox': $field_icon = '☑️'; break;
+                            case 'radio': $field_icon = '🔘'; break;
+                            case 'true_false': $field_icon = '✅'; break;
+                        }
+                        
+                        $fields[$post_type->name][] = [
+                            'value' => $acf_field['name'], 
+                            'label' => $field_icon . ' ' . $acf_field['label'] . ' (ACF)'
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Get other meta fields that exist in database but filter out WordPress internal ones
         global $wpdb;
         $result = $wpdb->get_results($wpdb->prepare(
-            "SELECT meta_key FROM wp_posts,wp_postmeta WHERE post_type = %s
-                    AND wp_posts.ID = wp_postmeta.post_id", $post_type->name
+            "SELECT DISTINCT meta_key FROM wp_posts,wp_postmeta 
+             WHERE post_type = %s AND wp_posts.ID = wp_postmeta.post_id 
+             AND meta_key NOT LIKE '\_%' 
+             AND meta_key NOT LIKE 'field_%'
+             ORDER BY meta_key", $post_type->name
         ), ARRAY_A);
 
-        $fields[$post_type->name][] = ["value"=> "counter", "label"=>"counter"];
-        $fields[$post_type->name][] = ["value"=> "post_title", "label"=>"post_title"];
-        $fields[$post_type->name][] = ["value"=> "post_content", "label"=>"post_content"];
-        $fields[$post_type->name][] = ["value"=> "post_excerpt", "label"=>"post_excerpt"];
-        $fields[$post_type->name][] = ["value"=> "featured_image", "label"=>"featured_image"];
-        $fields[$post_type->name][] = ["value"=> "month", "label"=>"month"];
-        $fields[$post_type->name][] = ["value"=> "permalink", "label"=>"permalink"];
-
-
+        // Track existing fields to avoid duplicates
+        $existing_fields = array_column($fields[$post_type->name], 'value');
+        
+        // Add database meta fields that aren't already included
         foreach($result as $key => $value){
-            $fields[$post_type->name][] = ['value' => $value['meta_key'], 'label' => $value['meta_key']];
+            if (!in_array($value['meta_key'], $existing_fields)) {
+                $fields[$post_type->name][] = ['value' => $value['meta_key'], 'label' => '🔧 ' . $value['meta_key'] . ' (custom)'];
+            }
         }
+        
+        // Sort fields: built-in first, then registered, then ACF, then custom
+        usort($fields[$post_type->name], function($a, $b) {
+            $order = ['built-in' => 1, 'registered' => 2, 'ACF' => 3, 'custom' => 4];
+            $a_type = preg_match('/\((.*?)\)/', $a['label'], $matches_a) ? $matches_a[1] : 'custom';
+            $b_type = preg_match('/\((.*?)\)/', $b['label'], $matches_b) ? $matches_b[1] : 'custom';
+            
+            $a_priority = $order[$a_type] ?? 5;
+            $b_priority = $order[$b_type] ?? 5;
+            
+            if ($a_priority === $b_priority) {
+                return strcmp($a['label'], $b['label']);
+            }
+            return $a_priority - $b_priority;
+        });
         $taxonomy_objects = get_object_taxonomies($post_type->name, 'objects');
         $taxonomies[$post_type->name][] = array('label' => 'Select Taxonomy', 'value' => '');
         foreach ($taxonomy_objects as $taxonomy_object) {

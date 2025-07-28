@@ -76,6 +76,37 @@ function modify_core_group_block_args( $args, $name ) {
     $safe_add_attr('text_shadow_mobile', [ "type" => "string", "default" => "" ]);
     $safe_add_attr('text_shadow_hover', [ "type" => "string", "default" => "" ]);
 
+    // Text and Background colors
+    $safe_add_attr('color_desktop', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('color_tablet', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('color_mobile', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('color_hover', [ "type" => "string", "default" => "" ]);
+    
+    $safe_add_attr('background_color_desktop', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_color_tablet', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_color_mobile', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_color_hover', [ "type" => "string", "default" => "" ]);
+    
+    $safe_add_attr('background_image_desktop', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_image_tablet', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_image_mobile', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_image_hover', [ "type" => "string", "default" => "" ]);
+    
+    $safe_add_attr('background_size_desktop', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_size_tablet', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_size_mobile', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_size_hover', [ "type" => "string", "default" => "" ]);
+    
+    $safe_add_attr('background_position_desktop', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_position_tablet', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_position_mobile', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_position_hover', [ "type" => "string", "default" => "" ]);
+    
+    $safe_add_attr('background_repeat_desktop', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_repeat_tablet', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_repeat_mobile', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('background_repeat_hover', [ "type" => "string", "default" => "" ]);
+
     // Layout & Positioning - Simple properties (property_device format)
     $safe_add_attr('width_desktop', [ "type" => "string", "default" => "" ]);
     $safe_add_attr('width_tablet', [ "type" => "string", "default" => "" ]);
@@ -347,7 +378,7 @@ add_action( 'wp_loaded', function() {
 //        }
 //
 //        // For our custom stepfox blocks.
-//        if ( $block->name == 'stepfox/intellibridge-query-block' ||   $block->name == 'stepfox/metafield-block1') {
+
 //
 //
 //            $block->attributes['theme_colors'] = [ "type" => "object", "default" => [ "white" => "#FFF" ] ];
@@ -547,8 +578,8 @@ function stepfox_styling() {
         $blocks = parse_blocks( $full_content );
         $all_blocks = search( $blocks, 'blockName' );
         $inline_style = '';
-        wp_register_style( 'intellibridge-custom-style', false );
-        wp_enqueue_style( 'intellibridge-custom-style' );
+        wp_register_style( 'stepfox-responsive-style', false );
+        wp_enqueue_style( 'stepfox-responsive-style' );
 
         foreach ( $all_blocks as $block ) {
             if ( ( $block['blockName'] === 'core/block' && ! empty( $block['attrs']['ref'] ) ) ||
@@ -561,42 +592,11 @@ function stepfox_styling() {
                 }
             }
 
-            if ( $block['blockName'] == 'stepfox/intellibridge-query-block' && $block['attrs']['className'] == 'is-style-custom-template-part' ) {
-                if ( is_numeric( $block['attrs']['template_part'] ) ) {
-                    $template_part = get_block_template( 'intellibridge//' . basename( get_permalink( $block['attrs']['template_part'] ) ), 'wp_template_part' );
-                } else {
-                    $template_part = get_block_template( 'intellibridge//' . $block['attrs']['template_part'], 'wp_template_part' );
-                }
-                $inline_style .= inline_styles_for_blocks( $block );
-                $template_part_content = $template_part->content;
-                if ( $block['attrs']["post_type"] == 'wp_template_part' && $block['attrs']['source'] == 'manual_selection' ) {
-                    $manual_selection = $block['attrs']['manual_selection'];
-                    foreach ( $manual_selection as $item ) {
-                        if ( is_numeric( $item['toplistitem'] ) ) {
-                            $template_part_inner = get_block_template( 'intellibridge//' . basename( get_permalink( $item['toplistitem'] ) ), 'wp_template_part' );
-                        } else {
-                            $template_part_inner = get_block_template( 'intellibridge//' . $item['toplistitem'], 'wp_template_part' );
-                        }
-                        $template_part_content .= $template_part_inner->content;
-                    }
-                }
-                $template_blocks = parse_blocks( $template_part_content );
-                $all_template_blocks = search( $template_blocks, 'blockName' );
-                foreach ( $all_template_blocks as $template_block ) {
-                    $inline_style .= inline_styles_for_blocks( $template_block );
-                }
-            } elseif ( $block['blockName'] == 'stepfox/intellibridge-query-block' && $block['attrs']['className'] != 'is-style-custom-template-part' ) {
-                $inline_style .= inline_styles_for_blocks( $block );
-            } elseif ( $block['blockName'] == 'stepfox/casino-query-block' && $block['attrs']['className'] != 'is-style-custom-template-part' ) {
-                $card = str_replace( 'is-style-', '', $block['attrs']['className'] );
-                wp_enqueue_style( 'casino-query-block-' . $card, get_template_directory_uri() . '/blocks/casino_query_block/cards/css/card-' . $card . '.css' );
-                $inline_style .= inline_styles_for_blocks( $block );
-            } else {
-                $inline_style .= inline_styles_for_blocks( $block );
-            }
+            // Process all blocks with inline styles
+            $inline_style .= inline_styles_for_blocks( $block );
         }
 
-        wp_add_inline_style( 'intellibridge-custom-style', $inline_style );
+        wp_add_inline_style( 'stepfox-responsive-style', $inline_style );
     }
 }
 add_action( 'wp_head', 'stepfox_styling' );
@@ -652,6 +652,14 @@ function inline_styles_for_blocks($block) {
         'text_transform_desktop', 'text_transform_tablet', 'text_transform_mobile', 'text_transform_hover',
         'text_decoration_desktop', 'text_decoration_tablet', 'text_decoration_mobile', 'text_decoration_hover',
         'text_shadow_desktop', 'text_shadow_tablet', 'text_shadow_mobile', 'text_shadow_hover',
+        
+        // Text and Background colors
+        'color_desktop', 'color_tablet', 'color_mobile', 'color_hover',
+        'background_color_desktop', 'background_color_tablet', 'background_color_mobile', 'background_color_hover',
+        'background_image_desktop', 'background_image_tablet', 'background_image_mobile', 'background_image_hover',
+        'background_size_desktop', 'background_size_tablet', 'background_size_mobile', 'background_size_hover',
+        'background_position_desktop', 'background_position_tablet', 'background_position_mobile', 'background_position_hover',
+        'background_repeat_desktop', 'background_repeat_tablet', 'background_repeat_mobile', 'background_repeat_hover',
         
         // Layout & Positioning Properties
         'width_desktop', 'width_tablet', 'width_mobile', 'width_hover',
@@ -1049,6 +1057,34 @@ if ( ! empty( $block['attrs']['text_shadow_desktop'] ) ) {
     $inlineStyles .= 'text-shadow:' . $block['attrs']['text_shadow_desktop'] . ';';
 }
 
+        // Text and Background colors - Desktop (High Priority)
+        if ( ! empty( $block['attrs']['color_desktop'] ) ) {
+            $inlineStyles .= 'color:' . $block['attrs']['color_desktop'] . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_color_desktop'] ) ) {
+            if (strpos($block['attrs']['background_color_desktop'], 'gradient') !== false) {
+                $inlineStyles .= 'background:' . $block['attrs']['background_color_desktop'] . ' !important;';
+            } else {
+                $inlineStyles .= 'background-color:' . $block['attrs']['background_color_desktop'] . ' !important;';
+            }
+        }
+        if ( ! empty( $block['attrs']['background_image_desktop'] ) ) {
+            $bg_image = $block['attrs']['background_image_desktop'];
+            if (strpos($bg_image, 'url(') !== 0) {
+                $bg_image = 'url(' . $bg_image . ')';
+            }
+            $inlineStyles .= 'background-image:' . $bg_image . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_size_desktop'] ) ) {
+            $inlineStyles .= 'background-size:' . $block['attrs']['background_size_desktop'] . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_position_desktop'] ) ) {
+            $inlineStyles .= 'background-position:' . $block['attrs']['background_position_desktop'] . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_repeat_desktop'] ) ) {
+            $inlineStyles .= 'background-repeat:' . $block['attrs']['background_repeat_desktop'] . ' !important;';
+        }
+
         // Layout & Positioning - Desktop
         if ( ! empty( $block['attrs']['width_desktop'] ) ) {
             $inlineStyles .= 'width:' . $block['attrs']['width_desktop'] . ';';
@@ -1246,6 +1282,34 @@ if ( ! empty( $block['attrs']['text_shadow_tablet'] ) ) {
     $inlineStyles .= 'text-shadow:' . $block['attrs']['text_shadow_tablet'] . ';';
 }
 
+        // Text and Background colors - Tablet (High Priority)
+        if ( ! empty( $block['attrs']['color_tablet'] ) ) {
+            $inlineStyles .= 'color:' . $block['attrs']['color_tablet'] . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_color_tablet'] ) ) {
+            if (strpos($block['attrs']['background_color_tablet'], 'gradient') !== false) {
+                $inlineStyles .= 'background:' . $block['attrs']['background_color_tablet'] . ' !important;';
+            } else {
+                $inlineStyles .= 'background-color:' . $block['attrs']['background_color_tablet'] . ' !important;';
+            }
+        }
+        if ( ! empty( $block['attrs']['background_image_tablet'] ) ) {
+            $bg_image = $block['attrs']['background_image_tablet'];
+            if (strpos($bg_image, 'url(') !== 0) {
+                $bg_image = 'url(' . $bg_image . ')';
+            }
+            $inlineStyles .= 'background-image:' . $bg_image . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_size_tablet'] ) ) {
+            $inlineStyles .= 'background-size:' . $block['attrs']['background_size_tablet'] . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_position_tablet'] ) ) {
+            $inlineStyles .= 'background-position:' . $block['attrs']['background_position_tablet'] . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_repeat_tablet'] ) ) {
+            $inlineStyles .= 'background-repeat:' . $block['attrs']['background_repeat_tablet'] . ' !important;';
+        }
+
         // Layout & Positioning - Tablet
         if ( ! empty( $block['attrs']['width_tablet'] ) ) {
             $inlineStyles .= 'width:' . $block['attrs']['width_tablet'] . ';';
@@ -1442,6 +1506,34 @@ if ( ! empty( $block['attrs']['text_decoration_mobile'] ) ) {
 if ( ! empty( $block['attrs']['text_shadow_mobile'] ) ) {
     $inlineStyles .= 'text-shadow:' . $block['attrs']['text_shadow_mobile'] . ';';
 }
+
+        // Text and Background colors - Mobile (High Priority)
+        if ( ! empty( $block['attrs']['color_mobile'] ) ) {
+            $inlineStyles .= 'color:' . $block['attrs']['color_mobile'] . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_color_mobile'] ) ) {
+            if (strpos($block['attrs']['background_color_mobile'], 'gradient') !== false) {
+                $inlineStyles .= 'background:' . $block['attrs']['background_color_mobile'] . ' !important;';
+            } else {
+                $inlineStyles .= 'background-color:' . $block['attrs']['background_color_mobile'] . ' !important;';
+            }
+        }
+        if ( ! empty( $block['attrs']['background_image_mobile'] ) ) {
+            $bg_image = $block['attrs']['background_image_mobile'];
+            if (strpos($bg_image, 'url(') !== 0) {
+                $bg_image = 'url(' . $bg_image . ')';
+            }
+            $inlineStyles .= 'background-image:' . $bg_image . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_size_mobile'] ) ) {
+            $inlineStyles .= 'background-size:' . $block['attrs']['background_size_mobile'] . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_position_mobile'] ) ) {
+            $inlineStyles .= 'background-position:' . $block['attrs']['background_position_mobile'] . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_repeat_mobile'] ) ) {
+            $inlineStyles .= 'background-repeat:' . $block['attrs']['background_repeat_mobile'] . ' !important;';
+        }
 
         // Layout & Positioning - Mobile
         if ( ! empty( $block['attrs']['width_mobile'] ) ) {
@@ -1641,6 +1733,34 @@ if ( ! empty( $block['attrs']['pointer_events_mobile'] ) ) {
             $inlineStyles .= 'text-shadow:' . $block['attrs']['text_shadow_hover'] . ';';
         }
 
+        // Text and Background colors - Hover (High Priority)
+        if ( ! empty( $block['attrs']['color_hover'] ) ) {
+            $inlineStyles .= 'color:' . $block['attrs']['color_hover'] . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_color_hover'] ) ) {
+            if (strpos($block['attrs']['background_color_hover'], 'gradient') !== false) {
+                $inlineStyles .= 'background:' . $block['attrs']['background_color_hover'] . ' !important;';
+            } else {
+                $inlineStyles .= 'background-color:' . $block['attrs']['background_color_hover'] . ' !important;';
+            }
+        }
+        if ( ! empty( $block['attrs']['background_image_hover'] ) ) {
+            $bg_image = $block['attrs']['background_image_hover'];
+            if (strpos($bg_image, 'url(') !== 0) {
+                $bg_image = 'url(' . $bg_image . ')';
+            }
+            $inlineStyles .= 'background-image:' . $bg_image . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_size_hover'] ) ) {
+            $inlineStyles .= 'background-size:' . $block['attrs']['background_size_hover'] . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_position_hover'] ) ) {
+            $inlineStyles .= 'background-position:' . $block['attrs']['background_position_hover'] . ' !important;';
+        }
+        if ( ! empty( $block['attrs']['background_repeat_hover'] ) ) {
+            $inlineStyles .= 'background-repeat:' . $block['attrs']['background_repeat_hover'] . ' !important;';
+        }
+
         // Layout & Positioning - Hover
         if ( ! empty( $block['attrs']['width_hover'] ) ) {
             $inlineStyles .= 'width:' . $block['attrs']['width_hover'] . ';';
@@ -1833,8 +1953,9 @@ function stepfox_block_scripts() {
         $blocks = parse_blocks( $full_content );
         $all_blocks = search( $blocks, 'blockName' );
         $inline_style = '';
-        wp_register_style( 'intellibridge-custom-style', false );
-        wp_enqueue_style( 'intellibridge-custom-style' );
+        $inline_script = '';
+        wp_register_style( 'stepfox-responsive-style', false );
+        wp_enqueue_style( 'stepfox-responsive-style' );
 
         foreach ( $all_blocks as $block ) {
             if ( ( $block['blockName'] === 'core/block' && ! empty( $block['attrs']['ref'] ) ) ||
@@ -1843,48 +1964,27 @@ function stepfox_block_scripts() {
                 $reusable_blocks = parse_blocks( $content );
                 $all_reusable_blocks = search( $reusable_blocks, 'blockName' );
                 foreach ( $all_reusable_blocks as $reusable_block ) {
-                    $inline_style .= inline_scripts_for_blocks( $reusable_block );
+                    $inline_style .= inline_styles_for_blocks( $reusable_block );
+                    $inline_script .= inline_scripts_for_blocks( $reusable_block );
                 }
             }
 
-            if ( $block['blockName'] == 'stepfox/intellibridge-query-block' && $block['attrs']['className'] == 'is-style-custom-template-part' ) {
-                if ( is_numeric( $block['attrs']['template_part'] ) ) {
-                    $template_part = get_block_template( 'intellibridge//' . basename( get_permalink( $block['attrs']['template_part'] ) ), 'wp_template_part' );
-                } else {
-                    $template_part = get_block_template( 'intellibridge//' . $block['attrs']['template_part'], 'wp_template_part' );
-                }
-                $inline_style .= inline_scripts_for_blocks( $block );
-                $template_part_content = $template_part->content;
-                if ( $block['attrs']["post_type"] == 'wp_template_part' && $block['attrs']['source'] == 'manual_selection' ) {
-                    $manual_selection = $block['attrs']['manual_selection'];
-                    foreach ( $manual_selection as $item ) {
-                        if ( is_numeric( $item['toplistitem'] ) ) {
-                            $template_part_inner = get_block_template( 'intellibridge//' . basename( get_permalink( $item['toplistitem'] ) ), 'wp_template_part' );
-                        } else {
-                            $template_part_inner = get_block_template( 'intellibridge//' . $item['toplistitem'], 'wp_template_part' );
-                        }
-                        $template_part_content .= $template_part_inner->content;
-                    }
-                }
-                $template_blocks = parse_blocks( $template_part_content );
-                $all_template_blocks = search( $template_blocks, 'blockName' );
-                foreach ( $all_template_blocks as $template_block ) {
-                    $inline_style .= inline_scripts_for_blocks( $template_block );
-                }
-            } elseif ( $block['blockName'] == 'stepfox/intellibridge-query-block' && $block['attrs']['className'] != 'is-style-custom-template-part' ) {
-                $inline_style .= inline_scripts_for_blocks( $block );
-            } elseif ( $block['blockName'] == 'stepfox/casino-query-block' && $block['attrs']['className'] != 'is-style-custom-template-part' ) {
-                $card = str_replace( 'is-style-', '', $block['attrs']['className'] );
-                wp_enqueue_style( 'casino-query-block-' . $card, get_template_directory_uri() . '/blocks/casino_query_block/cards/css/card-' . $card . '.css' );
-                $inline_style .= inline_scripts_for_blocks( $block );
-            } else {
-                $inline_style .= inline_scripts_for_blocks( $block );
-            }
+            // Process all blocks with inline styles and scripts
+            $inline_style .= inline_styles_for_blocks( $block );
+            $inline_script .= inline_scripts_for_blocks( $block );
         }
 
-        wp_register_script( 'myprefix-dummy-js-header', '',);
-        wp_enqueue_script( 'myprefix-dummy-js-header' );
-        wp_add_inline_script( 'myprefix-dummy-js-header', $inline_style);
+        // Output CSS
+        if (!empty($inline_style)) {
+            wp_add_inline_style( 'stepfox-responsive-style', $inline_style);
+        }
+
+        // Output JavaScript
+        if (!empty($inline_script)) {
+            wp_register_script( 'myprefix-dummy-js-header', '',);
+            wp_enqueue_script( 'myprefix-dummy-js-header' );
+            wp_add_inline_script( 'myprefix-dummy-js-header', $inline_script);
+        }
     }
 }
 
@@ -1894,4 +1994,5 @@ function inline_scripts_for_blocks($block) {
     if(!empty($block['attrs']['custom_js'])) {
         return str_replace('this_block', '#block_' . $block['attrs']['customId'], $block['attrs']['custom_js']);
     }
+    return '';
 }

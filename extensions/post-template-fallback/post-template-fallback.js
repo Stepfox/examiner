@@ -25,5 +25,176 @@
         };
     }, 'withDefaultContext' );
 
+    // Fix for post-terms blocks when post type changes
+    var withTaxonomyValidation = createHigherOrderComponent(function( BlockEdit ) {
+        return function( props ) {
+            // Target post-terms blocks within query/post-template context
+            if ( props.name === 'core/post-terms' ) {
+                var postType = 'post';
+                
+                // Try to get post type from various contexts
+                if (props.context && props.context.query && props.context.query.postType) {
+                    postType = props.context.query.postType;
+                } else if (props.context && props.context.postType) {
+                    postType = props.context.postType;
+                }
+                
+                var termAttribute = props.attributes.term;
+                
+                // If term is 'category' and post type isn't 'post', always hide for non-post types
+                if ( termAttribute === 'category' && postType !== 'post' ) {
+                    console.log('Hiding category block for post type:', postType);
+                    return wp.element.createElement('div', {
+                        style: { display: 'none', visibility: 'hidden', height: '0px', overflow: 'hidden' }
+                    });
+                }
+                
+                // For any other taxonomy, check if it exists for this post type
+                if (termAttribute && postType !== 'post') {
+                    try {
+                        var postTypeObject = wp.data.select('core').getPostType(postType);
+                        if (postTypeObject && postTypeObject.taxonomies && !postTypeObject.taxonomies.includes(termAttribute)) {
+                            console.log('Hiding taxonomy block for post type:', postType, 'taxonomy:', termAttribute);
+                            return wp.element.createElement('div', {
+                                style: { display: 'none', visibility: 'hidden', height: '0px', overflow: 'hidden' }
+                            });
+                        }
+                    } catch (e) {
+                        console.log('Error checking taxonomy, hiding block:', e);
+                        return wp.element.createElement('div', {
+                            style: { display: 'none', visibility: 'hidden', height: '0px', overflow: 'hidden' }
+                        });
+                    }
+                }
+            }
+            
+            // Target post-author-name blocks for custom post types that might not have authors
+            if ( props.name === 'core/post-author-name' ) {
+                var postType = 'post';
+                
+                // Try to get post type from various contexts
+                if (props.context && props.context.query && props.context.query.postType) {
+                    postType = props.context.query.postType;
+                } else if (props.context && props.context.postType) {
+                    postType = props.context.postType;
+                }
+                
+                // For non-post types, hide author blocks to prevent issues
+                if (postType !== 'post') {
+                    console.log('Hiding author block for post type:', postType);
+                    return wp.element.createElement('div', {
+                        style: { display: 'none', visibility: 'hidden', height: '0px', overflow: 'hidden' }
+                    });
+                }
+            }
+
+            // Target cover blocks that might cause validation issues with custom post types
+            if ( props.name === 'core/cover' ) {
+                var postType = 'post';
+                
+                // Try to get post type from various contexts
+                if (props.context && props.context.query && props.context.query.postType) {
+                    postType = props.context.query.postType;
+                } else if (props.context && props.context.postType) {
+                    postType = props.context.postType;
+                }
+                
+                // For non-post types, neutralize problematic cover block attributes
+                if (postType !== 'post' && props.attributes) {
+                    var safeAttributes = Object.assign({}, props.attributes);
+                    var originalSetAttributes = props.setAttributes;
+                    
+                    // Remove problematic attributes that can cause validation failures
+                    if (safeAttributes.useFeaturedImage) {
+                        console.log('Neutralizing useFeaturedImage for post type:', postType);
+                        safeAttributes.useFeaturedImage = false;
+                    }
+                    
+                    if (safeAttributes.linkToPost) {
+                        console.log('Neutralizing linkToPost for post type:', postType);
+                        safeAttributes.linkToPost = false;
+                    }
+                    
+                    // Override setAttributes to prevent these attributes from being set
+                    props.setAttributes = function(newAttributes) {
+                        if (newAttributes.useFeaturedImage && postType !== 'post') {
+                            console.log('Blocking useFeaturedImage for post type:', postType);
+                            newAttributes.useFeaturedImage = false;
+                        }
+                        if (newAttributes.linkToPost && postType !== 'post') {
+                            console.log('Blocking linkToPost for post type:', postType);
+                            newAttributes.linkToPost = false;
+                        }
+                        originalSetAttributes(newAttributes);
+                    };
+                    
+                    // Create new props with safe attributes
+                    var newProps = Object.assign({}, props, {
+                        attributes: safeAttributes
+                    });
+                    
+                    return wp.element.createElement( BlockEdit, newProps );
+                }
+            }
+
+            return wp.element.createElement( BlockEdit, props );
+        };
+    }, 'withTaxonomyValidation' );
+
+    // Prevent query block reset on template part validation failures
+    var withQueryProtection = createHigherOrderComponent(function( BlockEdit ) {
+        return function( props ) {
+            if ( props.name === 'core/query' ) {
+                // Store the original query attributes to prevent unwanted resets
+                var originalOnChange = props.setAttributes;
+                var lastValidQuery = props.attributes.query;
+                
+                props.setAttributes = function(newAttributes) {
+                    console.log('Query block setAttributes called with:', newAttributes);
+                    
+                    // If query is being reset/cleared, restore the last valid query
+                    if (newAttributes.query && 
+                        (!newAttributes.query.postType || newAttributes.query.postType === 'post') &&
+                        lastValidQuery && lastValidQuery.postType && lastValidQuery.postType !== 'post') {
+                        
+                        console.log('Preventing query reset, restoring:', lastValidQuery);
+                        newAttributes.query = lastValidQuery;
+                    }
+                    
+                    // If this is a valid query change, update our backup
+                    if (newAttributes.query && newAttributes.query.postType) {
+                        lastValidQuery = Object.assign({}, newAttributes.query);
+                    }
+                    
+                    originalOnChange(newAttributes);
+                };
+            }
+            
+            return wp.element.createElement( BlockEdit, props );
+        };
+    }, 'withQueryProtection' );
+
+    // Aggressive block validation override
+    var withBlockValidationOverride = createHigherOrderComponent(function( BlockEdit ) {
+        return function( props ) {
+            // Override any validation that might cause resets
+            if (props.name === 'core/post-template' || props.name === 'core/template-part') {
+                // Suppress any validation errors that could cause parent resets
+                try {
+                    return wp.element.createElement( BlockEdit, props );
+                } catch (error) {
+                    console.log('Suppressing template validation error:', error);
+                    return wp.element.createElement('div', {}, 'Template loading...');
+                }
+            }
+            
+            return wp.element.createElement( BlockEdit, props );
+        };
+    }, 'withBlockValidationOverride' );
+
+    // Apply filters
     addFilter( 'editor.BlockEdit', 'my-namespace/with-default-context', withDefaultContext );
+    addFilter( 'editor.BlockEdit', 'my-namespace/with-taxonomy-validation', withTaxonomyValidation, 5 );
+    addFilter( 'editor.BlockEdit', 'my-namespace/with-query-protection', withQueryProtection, 5 );
+    addFilter( 'editor.BlockEdit', 'my-namespace/with-block-validation-override', withBlockValidationOverride, 1 );
 })( window.wp );
