@@ -138,19 +138,13 @@ function examiner_disable_cover_block_srcset($attr, $attachment, $size) {
 add_filter('wp_get_attachment_image_attributes', 'examiner_disable_cover_block_srcset', 10, 3);
 
 /**
- * Load custom blocks and extensions
- * Using require_once for better error handling
+ * Include TGM Plugin Activation for plugin recommendations
+ * This provides a professional interface for users to install companion plugins
  */
-function examiner_load_components() {
-    $blocks_file = get_template_directory() . '/blocks/blocks_registration.php';
-    $extensions_file = get_template_directory() . '/extensions/extensions_registration.php';
-    
-    if (file_exists($blocks_file)) {
-        require_once $blocks_file;
-    }
-    
-    if (file_exists($extensions_file)) {
-        require_once $extensions_file;
+function examiner_load_tgmpa() {
+    $tgmpa_file = get_template_directory() . '/inc/tgm-plugin-activation.php';
+    if (file_exists($tgmpa_file)) {
+        require_once $tgmpa_file;
     }
 }
-add_action('after_setup_theme', 'examiner_load_components', 20);
+add_action('after_setup_theme', 'examiner_load_tgmpa');

@@ -71,10 +71,23 @@ Examiner is a professional, responsive news theme designed specifically for mode
 
 = After Installation =
 
-1. Go to Appearance > Site Editor to customize your site
-2. Import demo content (if available) via Tools > Import
-3. Customize colors, fonts, and layouts via the Site Editor
-4. Configure menus and widgets as needed
+1. Navigate to Appearance > Install Plugins to install the recommended Stepfox Looks plugin
+2. Go to Appearance > Site Editor to customize your site
+3. Import demo content (if available) via Tools > Import
+4. Customize colors, fonts, and layouts via the Site Editor
+5. Configure menus and widgets as needed
+
+= Bundled Plugin =
+
+This theme includes the Stepfox Looks companion plugin which provides:
+* Advanced block editor functionality
+* Custom metafield blocks for displaying custom fields
+* AJAX load more features for better pagination
+* Comprehensive responsive controls for all blocks
+* Enhanced social sharing capabilities
+* Block editor extensions and improvements
+
+The plugin is recommended but not required for basic theme functionality.
 
 == Frequently Asked Questions ==
 
