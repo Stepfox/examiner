@@ -254,8 +254,8 @@ function query_object_for_gutenberg_query()
         // Get other meta fields that exist in database but filter out WordPress internal ones
         global $wpdb;
         $result = $wpdb->get_results($wpdb->prepare(
-            "SELECT DISTINCT meta_key FROM wp_posts,wp_postmeta 
-             WHERE post_type = %s AND wp_posts.ID = wp_postmeta.post_id 
+            "SELECT DISTINCT meta_key FROM {$wpdb->posts},{$wpdb->postmeta} 
+             WHERE post_type = %s AND {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id 
              AND meta_key NOT LIKE '\_%' 
              AND meta_key NOT LIKE 'field_%'
              ORDER BY meta_key", $post_type->name

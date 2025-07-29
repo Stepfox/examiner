@@ -12,39 +12,39 @@ add_action( 'wp_loaded', function() {
     }
     }, 100);
 
-function myplugin_register_load_more_block()
+function examiner_register_load_more_block()
 {
-    wp_register_script("load-block-gutenberg",
+    wp_register_script("examiner-load-block-gutenberg",
         get_template_directory_uri() . "/blocks/load-more/load-more-editor.js",
         array("wp-blocks", "wp-editor", "wp-api", "jquery",), true
     );
-    register_block_type('myplugin/query-loop-load-more', array(
-        'editor_script' => 'load-block-gutenberg', // This enqueues the JS in the editor.
-        'render_callback' => 'myplugin_render_load_more_block',
-        'category' => 'widgets',
+    register_block_type('examiner/query-loop-load-more', array(
+        'editor_script' => 'examiner-load-block-gutenberg', // This enqueues the JS in the editor.
+        'render_callback' => 'examiner_render_load_more_block',
+        'category' => 'examiner',
         'parent' => array('core/query'), // Restrict to Query Loop.
     ));
 }
 
-add_action('init', 'myplugin_register_load_more_block');
+add_action('init', 'examiner_register_load_more_block');
 
 
-function myplugin_render_load_more_block($attributes, $content, $block)
+function examiner_render_load_more_block($attributes, $content, $block)
 {
     return '<div type="button" class="query-loop-load-more-button">Load More</div>';
 }
 
 
-function my_load_more_scripts()
+function examiner_load_more_scripts()
 {
-    wp_enqueue_script('my-load-more', get_template_directory_uri() . '/blocks/load-more/my-load-more.js', array('jquery'), '1.0', true);
-    wp_localize_script('my-load-more', 'my_load_more_params', array(
+    wp_enqueue_script('examiner-load-more', get_template_directory_uri() . '/blocks/load-more/my-load-more.js', array('jquery'), '1.0', true);
+    wp_localize_script('examiner-load-more', 'examiner_load_more_params', array(
         'ajaxurl' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('examiner_load_more_nonce')
     ));
 }
 
-add_action('wp_enqueue_scripts', 'my_load_more_scripts');
+add_action('wp_enqueue_scripts', 'examiner_load_more_scripts');
 
 
 function load_more_posts_callback()
@@ -69,7 +69,7 @@ function load_more_posts_callback()
     if ($context['query']['inherit']) {
         global $wp_query;
 
-        $query_args = $_POST['query_args'];
+        $query_args = isset($_POST['query_args']) ? map_deep($_POST['query_args'], 'sanitize_text_field') : array();
         $paged_offset = (($paged - 1) * $context['customPostsPerPage']) + $context['query']['offset'];
         $wp_query->set('paged', $paged);
         $wp_query->set('offset', $paged_offset);
@@ -80,7 +80,7 @@ function load_more_posts_callback()
         if (isset($queried_object['taxonomy'])) {
             // This is a taxonomy archive (category, tag, or custom taxonomy)
             // Instead of using a non-existent 'term' parameter, use a tax_query.
-            $taxonomy = $queried_object['taxonomy'];
+            $taxonomy = sanitize_text_field($queried_object['taxonomy']);
             $term_id = absint($queried_object['term_id']);
 
             $wp_query->set('tax_query', array(

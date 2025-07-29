@@ -79,7 +79,7 @@ function examiner_render_metafield_block( $attributes, $content, $block ) {
     }
     $css_variable = '';
 if($attributes['element_type'] == 'css_attribute') {
-    $css_variable = 'style="--meta-variable: '. $string.' ;"';
+    $css_variable = 'style="--meta-variable: '. esc_attr($string).' ;"';
     $attributes['element_type'] = 'div';
     $string = do_blocks( $attributes['innerContent'] );
 }
@@ -111,7 +111,7 @@ if($attributes['element_type'] == 'css_attribute') {
             break;
         default:
             echo '<' . esc_attr( $attributes['element_type'] ) . ' ' . $element_props . '  '.$css_variable.'>';
-            echo $string;
+            echo wp_kses_post($string);
             echo '</' . esc_attr( $attributes['element_type'] ) . '>';
             break;
     }

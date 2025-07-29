@@ -15,18 +15,3 @@ Domain Path: /languages
 Network: false
 Tags: blog, news, two-columns, right-sidebar, custom-background, custom-colors, custom-header, custom-logo, custom-menu, editor-style, featured-images, flexible-header, footer-widgets, full-width-template, rtl-language-support, sticky-post, theme-options, threaded-comments, translation-ready, block-styles, wide-blocks, accessibility-ready
 */
-
-/* Fix layout shift caused by default WordPress group block padding */
-.wp-block-group.has-background {
-    padding: 0;
-}
-
-/* Override WordPress default group padding to prevent layout shifts */
-:where(.wp-block-group.has-background) {
-    padding: 0;
-}
-
-/* Ensure responsive extension padding takes precedence over WordPress defaults */
-.wp-block-group[class*="block_"] {
-    padding: 0;
-}
