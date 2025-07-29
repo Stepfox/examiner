@@ -8,8 +8,6 @@ add_action( 'wp_loaded', function() {
         // For core/group block, set some basic attributes.
         if ($block->name == 'core/query') {
             $block->attributes['customPostsPerPage'] = [ "type" => "string", "default" => "" ];
-
-//    $args['attributes']['customPostsPerPage'] = '';
         }
     }
     }, 100);
@@ -41,7 +39,8 @@ function my_load_more_scripts()
 {
     wp_enqueue_script('my-load-more', get_template_directory_uri() . '/blocks/load-more/my-load-more.js', array('jquery'), '1.0', true);
     wp_localize_script('my-load-more', 'my_load_more_params', array(
-        'ajaxurl' => admin_url('admin-ajax.php')
+        'ajaxurl' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('examiner_load_more_nonce')
     ));
 }
 
@@ -50,12 +49,15 @@ add_action('wp_enqueue_scripts', 'my_load_more_scripts');
 
 function load_more_posts_callback()
 {
+    // Security check
+    if (!wp_verify_nonce($_POST['nonce'], 'examiner_load_more_nonce')) {
+        wp_die('Security check failed');
+    }
+    
     $paged = isset($_POST['paged']) ? intval($_POST['paged']) : 1;
     $posts_per_page = isset($_POST['posts_per_page']) ? intval($_POST['posts_per_page']) : 4;
-    $innerBlocksString = isset($_POST['innerBlocksString']) ? $_POST['innerBlocksString'] : '';
-    $innerBlocksString = stripslashes($innerBlocksString);
+    $innerBlocksString = isset($_POST['innerBlocksString']) ? stripslashes($_POST['innerBlocksString']) : '';
 
-//var_dump($innerBlocksString);
     $context = isset($_POST['context']) ? $_POST['context'] : '';
     $context = json_decode(stripslashes($context), true);
     $args = array(
@@ -65,8 +67,6 @@ function load_more_posts_callback()
         'posts_per_page' => $context['customPostsPerPage'],
     );
     if ($context['query']['inherit']) {
-
-        //var_dump($context['query']['inherit']);
         global $wp_query;
 
         $query_args = $_POST['query_args'];
@@ -94,32 +94,29 @@ function load_more_posts_callback()
             // Likely an author archive – get_queried_object() returns a WP_User object here.
             $wp_query->set('author', absint($queried_object->ID));
         }
-//         $wp_query->set('category', );
-
-//       var_dump($context['customPostsPerPage']);
-
         $query = new WP_Query($wp_query->query_vars);
-        // var_dump($queried_object );
 
     } else {
         $query = new WP_Query($args);
 
     }
-//napravi i za query main
-    foreach (parse_blocks($innerBlocksString) as $block) {
-        if ($block['blockName'] == 'core/post-template') {
-            $innerBlocksString = serialize_blocks($block['innerBlocks']);
+    // Extract post-template content and filter out load more button
+    $blocks = parse_blocks($innerBlocksString);
+    
+    foreach ($blocks as $block) {
+        if (isset($block['blockName']) && $block['blockName'] == 'core/post-template') {
+            if (isset($block['innerBlocks']) && is_array($block['innerBlocks'])) {
+                $innerBlocksString = serialize_blocks($block['innerBlocks']);
+                break;
+            }
         }
     }
-//            echo do_blocks(serialize_blocks(parse_blocks($innerBlocksString)));
-//    var_dump( $query);
     if ($query->have_posts()) {
         while ($query->have_posts()) {
             $query->the_post();
             echo '<li class="post-item">';
-           echo do_blocks($innerBlocksString);
+            echo do_blocks($innerBlocksString);
             echo '</li>';
-            //echo do_blocks('<!-- wp:post-template -->'.serialize_blocks($innerBlocksString).'<!-- /wp:post-template -->');
         }
     }
 
@@ -183,16 +180,11 @@ function my_render_query_block_custom($block_content, $block)
         return $block_content;
     }
 
-//    if (isset($block['blockName']) && 'myplugin/query-loop-load-more' === $block['blockName']) {
-//        echo '<pre>';
-//        var_dump($block);
-//        echo '</pre>';
-//    }
+
     // Check if this is a Query Loop block.
     if (isset($block['blockName']) && 'core/query' === $block['blockName']) {
         // Check for our custom attribute.
         if (isset($block['attrs']['customPostsPerPage']) && !empty($block['attrs']['customPostsPerPage']) && isset($block['attrs']['query']['inherit']) && $block['attrs']['query']['inherit'] && get_option('posts_per_page') != $block['attrs']['customPostsPerPage']) {
-//    var_dump(get_option('posts_per_page').'  ======   '. $block['attrs']['customPostsPerPage']);
             $custom_posts_per_page = absint($block['attrs']['customPostsPerPage']);
 
             // Get main query vars as a baseline.
@@ -206,17 +198,12 @@ function my_render_query_block_custom($block_content, $block)
             );
 
             // Optionally, remove or adjust parameters that might conflict.
-            // For example, if pagination is handled differently, you might unset:
-            // unset( $args['paged'] );
+            // For example, if pagination is handled differently, you might unset 'paged'.
 
             // Run a new query with our custom arguments.
             $query = new WP_Query($args);
-//$block['innerBlocks'] = '';
             ob_start();
-            //           var_dump($block);
-//            echo do_blocks(serialize_blocks($block['innerBlocks']));
-
-
+            
             $post_template = '';
             $columns = '';
 $customId = isset($block['attrs']['customId']) ? $block['attrs']['customId'] : 'default-block-id';
@@ -247,7 +234,6 @@ echo '<div ' . my_custom_query_wrapper_attributes($block) . ' id="block_' . esc_
                     $columns = 'columns-' . $columnCount;
                     $get_block_wrapper_attributes = my_custom_wrapper_attributes($block_child);
                     $child_id = isset($block_child['attrs']['customId']) ? esc_attr($block_child['attrs']['customId']) : 'default-child-id';
-                    // var_dump($get_block_wrapper_attributes);
 
                     if ($query->have_posts()) {
 
@@ -255,13 +241,9 @@ echo '<div ' . my_custom_query_wrapper_attributes($block) . ' id="block_' . esc_
                         // (This example simply outputs the post titles.)
                         while ($query->have_posts()) {
                             $query->the_post();
-                            //$post_template = '<li class="' . esc_attr( $classes ) . '">'.do_blocks(serialize_blocks($block_child['innerBlocks'])).'</li>';
                             echo '<li class="' . esc_attr($classes) . '">' . do_blocks($post_template) . '</li>';
-
                         }
                         echo '</ul>';
-
-//                echo render_block( $block_child );
 
                     } else {
                         echo '<p>No posts found.</p>';
@@ -274,7 +256,6 @@ echo '<div ' . my_custom_query_wrapper_attributes($block) . ' id="block_' . esc_
             }
             echo '</div>';
             wp_reset_postdata();
-//echo 'deeeeededde';
             // Replace the block content with our new content.
             return ob_get_clean();
         }

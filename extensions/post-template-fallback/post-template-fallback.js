@@ -43,7 +43,6 @@
                 
                 // If term is 'category' and post type isn't 'post', always hide for non-post types
                 if ( termAttribute === 'category' && postType !== 'post' ) {
-                    console.log('Hiding category block for post type:', postType);
                     return wp.element.createElement('div', {
                         style: { display: 'none', visibility: 'hidden', height: '0px', overflow: 'hidden' }
                     });
@@ -54,13 +53,11 @@
                     try {
                         var postTypeObject = wp.data.select('core').getPostType(postType);
                         if (postTypeObject && postTypeObject.taxonomies && !postTypeObject.taxonomies.includes(termAttribute)) {
-                            console.log('Hiding taxonomy block for post type:', postType, 'taxonomy:', termAttribute);
                             return wp.element.createElement('div', {
                                 style: { display: 'none', visibility: 'hidden', height: '0px', overflow: 'hidden' }
                             });
                         }
                     } catch (e) {
-                        console.log('Error checking taxonomy, hiding block:', e);
                         return wp.element.createElement('div', {
                             style: { display: 'none', visibility: 'hidden', height: '0px', overflow: 'hidden' }
                         });
@@ -81,7 +78,6 @@
                 
                 // For non-post types, hide author blocks to prevent issues
                 if (postType !== 'post') {
-                    console.log('Hiding author block for post type:', postType);
                     return wp.element.createElement('div', {
                         style: { display: 'none', visibility: 'hidden', height: '0px', overflow: 'hidden' }
                     });
@@ -106,23 +102,19 @@
                     
                     // Remove problematic attributes that can cause validation failures
                     if (safeAttributes.useFeaturedImage) {
-                        console.log('Neutralizing useFeaturedImage for post type:', postType);
                         safeAttributes.useFeaturedImage = false;
                     }
                     
                     if (safeAttributes.linkToPost) {
-                        console.log('Neutralizing linkToPost for post type:', postType);
                         safeAttributes.linkToPost = false;
                     }
                     
                     // Override setAttributes to prevent these attributes from being set
                     props.setAttributes = function(newAttributes) {
                         if (newAttributes.useFeaturedImage && postType !== 'post') {
-                            console.log('Blocking useFeaturedImage for post type:', postType);
                             newAttributes.useFeaturedImage = false;
                         }
                         if (newAttributes.linkToPost && postType !== 'post') {
-                            console.log('Blocking linkToPost for post type:', postType);
                             newAttributes.linkToPost = false;
                         }
                         originalSetAttributes(newAttributes);
@@ -150,14 +142,12 @@
                 var lastValidQuery = props.attributes.query;
                 
                 props.setAttributes = function(newAttributes) {
-                    console.log('Query block setAttributes called with:', newAttributes);
                     
                     // If query is being reset/cleared, restore the last valid query
                     if (newAttributes.query && 
                         (!newAttributes.query.postType || newAttributes.query.postType === 'post') &&
                         lastValidQuery && lastValidQuery.postType && lastValidQuery.postType !== 'post') {
                         
-                        console.log('Preventing query reset, restoring:', lastValidQuery);
                         newAttributes.query = lastValidQuery;
                     }
                     
@@ -183,7 +173,6 @@
                 try {
                     return wp.element.createElement( BlockEdit, props );
                 } catch (error) {
-                    console.log('Suppressing template validation error:', error);
                     return wp.element.createElement('div', {}, 'Template loading...');
                 }
             }

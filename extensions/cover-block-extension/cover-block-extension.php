@@ -1,26 +1,51 @@
 <?php
 /**
- * Enqueue the Cover block extension script from the theme.
+ * Cover Block Extension
+ * Extends cover blocks with additional functionality
+ * 
+ * @package Examiner
+ * @since 1.0.0
  */
-function mytheme_enqueue_cover_extension_editor_script() {
-    wp_enqueue_script(
-        'mytheme-cover-extension',
-        get_stylesheet_directory_uri() . '/extensions/cover-block-extension/cover-block-extension.js',
-        array( 'wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-hooks', 'wp-compose' ),
-        filemtime( get_stylesheet_directory() . '/extensions/cover-block-extension/cover-block-extension.js' ),
-        true
-    );
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
 }
-add_action( 'enqueue_block_editor_assets', 'mytheme_enqueue_cover_extension_editor_script' );
 
 /**
- * Filter the output of the Cover block on the frontend.
- *
- * When the "Link to Post" toggle is enabled (linkToPost is true),
- * this function wraps the cover image element (with class "wp-block-cover__background")
- * in an anchor linking to the current post.
+ * Enqueue cover block extension assets
+ * Only loads in block editor context
  */
-function mytheme_cover_extension_render( $block_content, $block ) {
+function examiner_enqueue_cover_extension_assets() {
+    // Only load in block editor
+    if (!is_admin()) {
+        return;
+    }
+    
+    $script_path = get_template_directory() . '/extensions/cover-block-extension/cover-block-extension.js';
+    if (file_exists($script_path)) {
+        wp_enqueue_script(
+            'examiner-cover-extension',
+            get_template_directory_uri() . '/extensions/cover-block-extension/cover-block-extension.js',
+            array('wp-blocks', 'wp-element', 'wp-editor', 'wp-components', 'wp-hooks', 'wp-compose'),
+            wp_get_theme()->get('Version'),
+            true
+        );
+    }
+}
+add_action('enqueue_block_editor_assets', 'examiner_enqueue_cover_extension_assets');
+
+/**
+ * Filter the output of the Cover block on the frontend
+ * 
+ * When the "Link to Post" toggle is enabled (linkToPost is true),
+ * this function wraps the cover image element in an anchor linking to the current post.
+ * 
+ * @param string $block_content Block HTML content
+ * @param array $block Block data
+ * @return string Modified block content
+ */
+function examiner_cover_extension_render($block_content, $block) {
     if ( isset( $block['attrs']['linkToPost'] ) && $block['attrs']['linkToPost'] ) {
         $permalink = get_permalink();
         if ( $permalink ) {
@@ -34,4 +59,4 @@ function mytheme_cover_extension_render( $block_content, $block ) {
     }
     return $block_content;
 }
-add_filter( 'render_block_core/cover', 'mytheme_cover_extension_render', 10, 2 );
+add_filter('render_block_core/cover', 'examiner_cover_extension_render', 10, 2);

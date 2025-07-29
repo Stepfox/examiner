@@ -1,23 +1,51 @@
 <?php
-function social_share_extension(){
+/**
+ * Social Share Extension
+ * Extends social link blocks with share functionality
+ * 
+ * @package Examiner
+ * @since 1.0.0
+ */
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Enqueue social share extension assets
+ * Only loads in block editor context
+ */
+function examiner_enqueue_social_share_assets() {
+    // Only load in block editor
+    if (!is_admin()) {
+        return;
+    }
 
     $script_path = get_template_directory() . '/extensions/social-share/social-share.js';
-    $script_uri  = get_template_directory_uri() . '/extensions/social-share/social-share.js';
-
-    wp_enqueue_script(
-        'social-share-extension',  // Unique handle for the script.
-        $script_uri,                  // The URL to the script.
-        array( 'wp-blocks', 'wp-editor', 'wp-api' ),  // Dependencies.
-        filemtime( $script_path ),    // Use file modification time as version (helps with cache busting).
-        true                          // Load in footer.
-    );
+    if (file_exists($script_path)) {
+        wp_enqueue_script(
+            'examiner-social-share',
+            get_template_directory_uri() . '/extensions/social-share/social-share.js',
+            array('wp-blocks', 'wp-editor', 'wp-api'),
+            wp_get_theme()->get('Version'),
+            true
+        );
+    }
 }
-add_action( 'enqueue_block_assets', 'social_share_extension' );
+add_action('enqueue_block_editor_assets', 'examiner_enqueue_social_share_assets');
 
-function myplugin_extend_core_social_links_defaults( $args, $name ) {
-    if ( 'core/social-link' === $name ) {
-        // Ensure the shareThisPost attribute is defined.
-        if ( ! isset( $args['attributes']['shareThisPost'] ) ) {
+/**
+ * Extend social link blocks with custom attributes
+ * 
+ * @param array $args Block registration arguments
+ * @param string $name Block name
+ * @return array Modified arguments
+ */
+function examiner_extend_social_link_defaults($args, $name) {
+    if ('core/social-link' === $name) {
+        // Ensure the shareThisPost attribute is defined
+        if (!isset($args['attributes']['shareThisPost'])) {
             $args['attributes']['shareThisPost'] = array(
                 'type'    => 'boolean',
                 'default' => false,
@@ -26,8 +54,15 @@ function myplugin_extend_core_social_links_defaults( $args, $name ) {
     }
     return $args;
 }
-add_filter( 'register_block_type_args', 'myplugin_extend_core_social_links_defaults', 10, 2 );
-function myplugin_extend_social_links_share( $block_content, $block ) {
+add_filter('register_block_type_args', 'examiner_extend_social_link_defaults', 10, 2);
+/**
+ * Extend social links share functionality
+ * 
+ * @param string $block_content Block HTML content
+ * @param array $block Block data
+ * @return string Modified block content
+ */
+function examiner_extend_social_links_share($block_content, $block) {
     // Safety check: ensure block is properly structured
     if (!is_array($block) || !isset($block['blockName']) || !isset($block['attrs']) || !is_array($block['attrs'])) {
         return $block_content;
@@ -84,4 +119,4 @@ function myplugin_extend_social_links_share( $block_content, $block ) {
     }
     return $block_content;
 }
-add_filter( 'render_block', 'myplugin_extend_social_links_share', 10, 2 );
+add_filter('render_block', 'examiner_extend_social_links_share', 10, 2);

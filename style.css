@@ -1,15 +1,32 @@
 /*
 Theme Name: Examiner
-Theme URI: https://stepfoxthemes.com/themes/Examiner/
+Theme URI: https://stepfoxthemes.com/themes/examiner/
 Author: Stepfox
 Author URI: https://stepfoxthemes.com
-Description: Profesional responsive news theme.
-Requires at least: 6.7
+Description: Professional responsive news theme designed for modern content creators. Features a clean, accessible design with comprehensive block editor support, customizable layouts, and optimized performance for news and blog websites.
+Requires at least: 6.0
 Tested up to: 6.7
-Requires PHP: 7.2
-Version: 1.0
+Requires PHP: 7.4
+Version: 1.0.0
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: examiner
-Tags: Custom Colors, custom-menu, Custom Logo, Editor Style, Featured Images, Site Editor, Block Editor Patterns, rtl-language-support, Sticky Post, threaded-comments, translation-ready, Wide Blocks, Block Editor Styles, Style Variations, Accessibility Ready, Blog, Portfolio, News
+Domain Path: /languages
+Network: false
+Tags: blog, news, two-columns, right-sidebar, custom-background, custom-colors, custom-header, custom-logo, custom-menu, editor-style, featured-images, flexible-header, footer-widgets, full-width-template, rtl-language-support, sticky-post, theme-options, threaded-comments, translation-ready, block-styles, wide-blocks, accessibility-ready
 */
+
+/* Fix layout shift caused by default WordPress group block padding */
+.wp-block-group.has-background {
+    padding: 0;
+}
+
+/* Override WordPress default group padding to prevent layout shifts */
+:where(.wp-block-group.has-background) {
+    padding: 0;
+}
+
+/* Ensure responsive extension padding takes precedence over WordPress defaults */
+.wp-block-group[class*="block_"] {
+    padding: 0;
+}

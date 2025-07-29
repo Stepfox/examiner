@@ -1,4 +1,16 @@
 <?php
+/**
+ * Blocks Registration
+ * Registers custom blocks and post types
+ * 
+ * @package Examiner
+ * @since 1.0.0
+ */
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
 //load last !!important blokovite ------------------------------------------------ pravat bed inace moze da fali fieldot
 //na metafield namesti if image field = url get_the_post_thumbnail_url( $post_id, 'full' ); else get_post_meta( $post_id, $meta_field, true );
 //napravi vo stepfox_styles da moze da pravi onie spacing delcinjata shto se scrollat
@@ -27,8 +39,8 @@ add_filter( 'query_block_get_query_vars', 'my_extend_query_block_query_args', 10
 function cptui_register_my_cpts_casino_reviews() {
 
     $labels = [
-        "name" => __( "Casino Reviews", "custom-post-type-ui" ),
-        "singular_name" => __( "Casino Review", "custom-post-type-ui" ),
+        "name" => __( "Casino Reviews", "examiner" ),
+        "singular_name" => __( "Casino Review", "examiner" ),
     ];
 
     $args = array(

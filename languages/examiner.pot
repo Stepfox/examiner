@@ -1,0 +1,49 @@
+# Copyright (C) 2024 Stepfox
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Examiner 1.0.0\n"
+"Report-Msgid-Bugs-To: https://stepfoxthemes.com/support\n"
+"POT-Creation-Date: 2024-01-01 00:00:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2024-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: WordPress\n"
+"X-Domain: examiner\n"
+
+#: blocks/load-more/load-more.php:45
+msgid "Load More"
+msgstr ""
+
+#: blocks/blocks_registration.php:28
+msgid "Casino Reviews"
+msgstr ""
+
+#: blocks/blocks_registration.php:29
+msgid "Casino Review"
+msgstr ""
+
+#. Theme Name of the theme
+msgid "Examiner"
+msgstr ""
+
+#. Theme URI of the theme
+msgid "https://stepfoxthemes.com/themes/examiner/"
+msgstr ""
+
+#. Description of the theme
+msgid "Professional responsive news theme designed for modern content creators. Features a clean, accessible design with comprehensive block editor support, customizable layouts, and optimized performance for news and blog websites."
+msgstr ""
+
+#. Author of the theme
+msgid "Stepfox"
+msgstr ""
+
+#. Author URI of the theme
+msgid "https://stepfoxthemes.com"
+msgstr "" 

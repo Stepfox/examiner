@@ -5,21 +5,29 @@
  * blocks that reference taxonomies/fields not available for the selected post type
  */
 
-// Enqueue the JavaScript fallback
-function post_templateblock_fallback(){
- 
+/**
+ * Enqueue post template fallback assets
+ * Only loads in block editor context
+ */
+function examiner_enqueue_post_template_fallback_assets() {
+    // Only load in block editor
+    if (!is_admin()) {
+        return;
+    }
+
     $script_path = get_template_directory() . '/extensions/post-template-fallback/post-template-fallback.js';
-    $script_uri  = get_template_directory_uri() . '/extensions/post-template-fallback/post-template-fallback.js';
- 
+
+    if (file_exists($script_path)) {
     wp_enqueue_script(
-        'post-template-fallback',  // Unique handle for the script.
-        $script_uri,                  // The URL to the script.
-        array( 'wp-blocks', 'wp-editor', 'wp-api' ),  // Dependencies.
-        filemtime( $script_path ),    // Use file modification time as version (helps with cache busting).
-        true                          // Load in footer.
-    );
+            'examiner-post-template-fallback',
+            get_template_directory_uri() . '/extensions/post-template-fallback/post-template-fallback.js',
+            array('wp-blocks', 'wp-editor', 'wp-api'),
+            wp_get_theme()->get('Version'),
+            true
+        );
+    }
 }
-add_action( 'enqueue_block_assets', 'post_templateblock_fallback' );
+add_action('enqueue_block_editor_assets', 'examiner_enqueue_post_template_fallback_assets');
 
 // Prevent template part validation failures from resetting query blocks
 function stepfox_prevent_template_validation_reset($block_content, $block, $instance) {
@@ -37,7 +45,6 @@ function stepfox_prevent_template_validation_reset($block_content, $block, $inst
         
         // For category terms on non-post types, return empty
         if (isset($block['attrs']['term']) && $block['attrs']['term'] === 'category' && $current_post_type !== 'post') {
-            error_log("Hiding category block for post type: " . $current_post_type);
             return '';
         }
         
@@ -47,7 +54,6 @@ function stepfox_prevent_template_validation_reset($block_content, $block, $inst
             $taxonomies = get_object_taxonomies($current_post_type);
             
             if (!in_array($term, $taxonomies)) {
-                error_log("Hiding taxonomy '$term' block for post type: " . $current_post_type);
                 return '';
             }
         }
@@ -74,7 +80,6 @@ function stepfox_handle_author_blocks($block_content, $block, $instance) {
     
     // For non-post types, hide author blocks to prevent validation issues
     if ($current_post_type !== 'post') {
-        error_log("Hiding author block for post type: " . $current_post_type);
         return '';
     }
     
@@ -101,14 +106,12 @@ function stepfox_handle_cover_blocks($block_content, $block, $instance) {
     if ($current_post_type !== 'post') {
         // Check for problematic attributes
         if (isset($block['attrs']['useFeaturedImage']) && $block['attrs']['useFeaturedImage']) {
-            error_log("Neutralizing useFeaturedImage in cover block for post type: " . $current_post_type);
             // Return a modified version without featured image dependency
             $block_content = str_replace('data-has-background-image="true"', '', $block_content);
             $block_content = str_replace('has-background-image', '', $block_content);
         }
         
         if (isset($block['attrs']['linkToPost']) && $block['attrs']['linkToPost']) {
-            error_log("Neutralizing linkToPost in cover block for post type: " . $current_post_type);
             // Remove link functionality that could cause validation issues
             $block_content = str_replace('data-link-to-post="true"', '', $block_content);
         }
@@ -187,12 +190,10 @@ function stepfox_prevent_block_validation_errors($parsed_block, $source_block, $
             // Remove problematic attributes that can cause validation failures
             if (isset($parsed_block['attrs']['useFeaturedImage'])) {
                 $parsed_block['attrs']['useFeaturedImage'] = false;
-                error_log("Pre-emptively disabled useFeaturedImage for post type: " . $_GET['post_type']);
             }
             
             if (isset($parsed_block['attrs']['linkToPost'])) {
                 $parsed_block['attrs']['linkToPost'] = false;
-                error_log("Pre-emptively disabled linkToPost for post type: " . $_GET['post_type']);
             }
         }
     }
@@ -215,7 +216,6 @@ add_filter('get_the_terms', 'stepfox_safe_post_terms_display', 10, 3);
 // Add debug logging for troubleshooting (can be removed in production)
 function stepfox_debug_query_block_changes($query_vars) {
     if (defined('WP_DEBUG') && WP_DEBUG) {
-        error_log('Query Block Variables: ' . print_r($query_vars, true));
     }
     return $query_vars;
 }

@@ -411,7 +411,6 @@
           ) {
             // Use a portion of the block's clientId as a new unique ID.
             const blockId = props.clientId.slice(0, 6);
-            // console.log(props.attributes.customId, '->>>>>>>', blockId);
             props.setAttributes({ customId: blockId });
           }
         }, []);
@@ -434,9 +433,7 @@
             }, 1000);
           }
         };
-// console.log(el(
-//                window.MobileInspectorControls, props
-//                   ));
+        
         return el(
           Fragment,
           {},
@@ -518,7 +515,7 @@
                   borderRadius: '4px'
                 },
                 rows: 10,
-                placeholder: CodeControl ? 'console.log("Hello from", this_block);\n\n// Your JavaScript code here\ndocument.querySelector(this_block).style.opacity = 0.8;' : 'console.log("Hello from", this_block);'
+                placeholder: CodeControl ? '// Your JavaScript code here\n// Use this_block to reference this element\ndocument.querySelector(this_block).style.opacity = 0.8;\n\n// Example: Add click handler\n// document.querySelector(this_block).addEventListener("click", function() {\n//   alert("Block clicked!");\n// });' : '// Your JavaScript code here'
               })
             ),
             el(

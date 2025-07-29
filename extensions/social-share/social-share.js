@@ -26,9 +26,8 @@
             if ( props.name !== 'core/social-link'  ) {
                 return wp.element.createElement( BlockEdit, props );
             }
-            console.log(props);
+            
             var shareThisPost = props.attributes.shareThisPost;
-            console.log(props);
             return [
                 wp.element.createElement(
                     InspectorControls,

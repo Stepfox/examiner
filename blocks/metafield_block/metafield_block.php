@@ -1,28 +1,66 @@
 <?php
+/**
+ * Metafield Block
+ * Displays custom fields and metadata with proper security measures
+ * 
+ * @package Examiner
+ * @since 1.0.0
+ */
 
- //include render function and customizer
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// Include render function with security check
+$render_file = get_template_directory() . '/blocks/metafield_block/metafield_block_html.php';
+if (file_exists($render_file)) {
+    require_once $render_file;
+}
 
 
-include(get_template_directory() . "/blocks/metafield_block/metafield_block_html.php");
-
-
-function stepfox_query_for_gutenberg($attributes)
+/**
+ * Query for Gutenberg blocks with proper sanitization
+ * 
+ * @param array $attributes Block attributes
+ * @return WP_Query|null Query object or null if invalid
+ */
+function examiner_query_for_gutenberg($attributes)
 {
-//var_dump($attributes);
-    if ($attributes['source'] == 'posts') {
-        $number = $attributes['post_count'];
-
+    // Validate and sanitize attributes
+    if (!is_array($attributes) || empty($attributes['source'])) {
+        return null;
+    }
+    
+    if (sanitize_text_field($attributes['source']) === 'posts') {
+        $number = isset($attributes['post_count']) ? absint($attributes['post_count']) : 5;
+        $number = min($number, 50); // Limit to prevent abuse
+        
         $args = array('posts_per_page' => $number);
 
+        // Sanitize taxonomy and term
         if (!empty($attributes['term']) && !empty($attributes['taxonomy'])) {
-            $args['tax_query'] = array(array('taxonomy' => $attributes['taxonomy'], 'field' => 'slug', 'terms' => array($attributes['term'])));
+            $taxonomy = sanitize_text_field($attributes['taxonomy']);
+            $term = sanitize_text_field($attributes['term']);
+            
+            if (taxonomy_exists($taxonomy)) {
+                $args['tax_query'] = array(array(
+                    'taxonomy' => $taxonomy, 
+                    'field' => 'slug', 
+                    'terms' => array($term)
+                ));
+            }
         }
 
-
-        $args['post_type'] = $attributes['post_type'];
-        $args['offset'] = $attributes['offset_posts'];
-        $args['order'] = $attributes['order'];
-        $args['orderby'] = $attributes['order_by'];
+        // Sanitize post type
+        $post_type = isset($attributes['post_type']) ? sanitize_text_field($attributes['post_type']) : 'post';
+        if (post_type_exists($post_type)) {
+            $args['post_type'] = $post_type;
+        }
+        
+        $args['offset'] = isset($attributes['offset_posts']) ? absint($attributes['offset_posts']) : 0;
+        $args['order'] = isset($attributes['order']) && in_array($attributes['order'], array('ASC', 'DESC')) ? $attributes['order'] : 'DESC';
+        $args['orderby'] = isset($attributes['order_by']) ? sanitize_text_field($attributes['order_by']) : 'date';
         if ($attributes['display_pagination'] == true) {
             global $paged;
             if (get_query_var('paged')) {
@@ -347,10 +385,10 @@ function add_block_named_metafield_block() {
 
 
          register_block_type(
-            "stepfox/metafield-block", array(
+            "examiner/metafield-block", array(
 
-                "render_callback" => "render_metafield_block",
-                "category" => "stepfox_creator_block",
+                "render_callback" => "examiner_render_metafield_block",
+                "category" => "examiner",
                 "attributes" => $attributes_reg,
                 "style" => "metafield-block-style",//ova e backend i frontend za blockot
                 "script" => "metafield-block-script", //i back i front

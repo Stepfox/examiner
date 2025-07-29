@@ -1,5 +1,26 @@
 <?php
-function render_metafield_block( $attributes, $content, $block ) {
+/**
+ * Metafield Block HTML Renderer
+ * Renders metafield blocks with proper security measures
+ * 
+ * @package Examiner
+ * @since 1.0.0
+ */
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Render metafield block with security measures
+ * 
+ * @param array $attributes Block attributes
+ * @param string $content Block content
+ * @param WP_Block $block Block instance
+ * @return string
+ */
+function examiner_render_metafield_block( $attributes, $content, $block ) {
     ob_start();
 
     // Determine block name and class

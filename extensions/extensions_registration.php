@@ -1,6 +1,28 @@
 <?php
+/**
+ * Extensions Registration
+ * Loads all theme extensions with security checks
+ * 
+ * @package Examiner
+ * @since 1.0.0
+ */
 
-include_once(get_template_directory() . '/extensions/cover-block-extension/cover-block-extension.php');
-include_once(get_template_directory() . '/extensions/responsive/responsive.php');
-include_once get_template_directory() . '/extensions/post-template-fallback/post-template-fallback.php';
-include_once get_template_directory() . '/extensions/social-share/social-share.php';
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+// Load extensions with security checks
+$extensions = array(
+    '/extensions/cover-block-extension/cover-block-extension.php',
+    '/extensions/responsive/responsive.php',
+    '/extensions/post-template-fallback/post-template-fallback.php',
+    '/extensions/social-share/social-share.php'
+);
+
+foreach ($extensions as $extension) {
+    $extension_path = get_template_directory() . $extension;
+    if (file_exists($extension_path)) {
+        require_once $extension_path;
+    }
+}

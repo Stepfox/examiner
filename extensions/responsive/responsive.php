@@ -1,37 +1,69 @@
 <?php
+/**
+ * Responsive Extension
+ * Provides responsive controls for all blocks
+ * 
+ * @package Examiner
+ * @since 1.0.0
+ */
 
-include(get_template_directory().'/extensions/responsive/responsive-style.php');
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
 
+// Include responsive styles with security check
+$responsive_style_file = get_template_directory() . '/extensions/responsive/responsive-style.php';
+if (file_exists($responsive_style_file)) {
+    require_once $responsive_style_file;
+}
 
-function responsive_extender() {
-    // Enqueue the new modern responsive interface first
-    $modern_script_path = get_template_directory() . '/extensions/responsive/modern-responsive.js';
-    $modern_script_uri  = get_template_directory_uri() . '/extensions/responsive/modern-responsive.js';
-
-    wp_enqueue_script(
-        'stepfox-modern-responsive',  // Unique handle for the script.
-        $modern_script_uri,          // The URL to the script.
-        array( 'wp-blocks', 'wp-editor', 'wp-element', 'wp-components' ),  // Dependencies.
-        filemtime( $modern_script_path ),    // Use file modification time as version (helps with cache busting).
-        true                          // Load in footer.
-    );
-
-    // Use filemtime() to generate a version string based on the file modification time.
-    $script_path = get_template_directory() . '/extensions/responsive/general.js';
-    $script_uri  = get_template_directory_uri() . '/extensions/responsive/general.js';
-
-    wp_enqueue_script(
-        'stepfox-responsive-general',  // Unique handle for the script.
-        $script_uri,                  // The URL to the script.
-        array( 'wp-blocks', 'wp-editor', 'wp-api', 'stepfox-modern-responsive' ),  // Dependencies.
-        filemtime( $script_path ),    // Use file modification time as version (helps with cache busting).
-        true                          // Load in footer.
-    );
+/**
+ * Enqueue responsive extension assets for block editor
+ * Only loads in admin context to improve frontend performance
+ */
+function examiner_enqueue_responsive_assets() {
+    // Only load in block editor
+    if (!is_admin()) {
+        return;
+    }
+    // Get theme version for cache busting
+    $theme_version = wp_get_theme()->get('Version');
     
-    wp_enqueue_style(
-        'responsive-editor',  // Unique handle for the script.
-        get_template_directory_uri() . '/extensions/responsive/responsive-editor.css'
-    );
+    // Enqueue modern responsive interface
+    $modern_script_path = get_template_directory() . '/extensions/responsive/modern-responsive.js';
+    if (file_exists($modern_script_path)) {
+        wp_enqueue_script(
+            'examiner-modern-responsive',
+            get_template_directory_uri() . '/extensions/responsive/modern-responsive.js',
+            array('wp-blocks', 'wp-editor', 'wp-element', 'wp-components'),
+            $theme_version,
+            true
+        );
+    }
+
+    // Enqueue general responsive controls
+    $script_path = get_template_directory() . '/extensions/responsive/general.js';
+    if (file_exists($script_path)) {
+        wp_enqueue_script(
+            'examiner-responsive-general',
+            get_template_directory_uri() . '/extensions/responsive/general.js',
+            array('wp-blocks', 'wp-editor', 'wp-api', 'examiner-modern-responsive'),
+            $theme_version,
+            true
+        );
+    }
+    
+    // Enqueue editor styles
+    $editor_css_path = get_template_directory() . '/extensions/responsive/responsive-editor.css';
+    if (file_exists($editor_css_path)) {
+        wp_enqueue_style(
+            'examiner-responsive-editor',
+            get_template_directory_uri() . '/extensions/responsive/responsive-editor.css',
+            array(),
+            $theme_version
+        );
+    }
 
     // Temporarily commenting out old device-specific files to test modern interface
     /*
@@ -83,13 +115,27 @@ function responsive_extender() {
     );
     */
 }
-add_action( 'enqueue_block_editor_assets', 'responsive_extender' );
+add_action('enqueue_block_editor_assets', 'examiner_enqueue_responsive_assets');
 
-function animations_style_css(){
-    wp_enqueue_style(
-        'animations-front',  // Unique handle for the script.
-        get_template_directory_uri() . '/extensions/responsive/animations.css'
-    );
+/**
+ * Enqueue frontend animations CSS
+ * Only loads on frontend for better performance
+ */
+function examiner_enqueue_animations_css() {
+    // Don't load in admin to improve performance
+    if (is_admin()) {
+        return;
+    }
+    
+    $animations_css_path = get_template_directory() . '/extensions/responsive/animations.css';
+    if (file_exists($animations_css_path)) {
+        wp_enqueue_style(
+            'examiner-animations',
+            get_template_directory_uri() . '/extensions/responsive/animations.css',
+            array(),
+            wp_get_theme()->get('Version')
+        );
+    }
 }
 
-add_action( 'enqueue_block_assets', 'animations_style_css' );
+add_action('wp_enqueue_scripts', 'examiner_enqueue_animations_css');
