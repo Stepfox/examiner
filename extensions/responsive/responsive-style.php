@@ -519,18 +519,22 @@ function wrap_group_and_columns($block_content = '', $block = [])
     }
     
     // If block has responsive attributes but no customId, generate one based on block content hash
-    if ($hasResponsiveAttrs && empty($block['attrs']['customId']) && $block['blockName'] != 'core/spacer') {
+    if ($hasResponsiveAttrs && isset($block['attrs']) && empty($block['attrs']['customId']) && $block['blockName'] != 'core/spacer') {
         // Create a consistent ID based on block content and attributes
         $blockHash = md5(serialize($block['attrs']) . $block['blockName'] . serialize($block['innerHTML'] ?? ''));
         $block['attrs']['customId'] = substr($blockHash, 0, 8);
     }
 
     // If the block has a customId (and is not a spacer) add the custom id to the outer tag.
-    if ( ! empty( $block['attrs']['customId'] ) && $block['blockName'] != 'core/spacer' ) {
+    if ( isset($block['attrs']) && ! empty( $block['attrs']['customId'] ) && $block['blockName'] != 'core/spacer' ) {
 $block['attrs']['customId'] = str_replace( 'anchor_', '', $block['attrs']['customId'] );
         $content = preg_replace( '(>+)', ' id="block_' . $block['attrs']['customId'] . '" > ', $block_content, 1 );
 
-        preg_match( '/(<[^>]*>)/i', $content, $first_line );
+        if ( !empty($content) ) {
+            preg_match( '/(<[^>]*>)/i', $content, $first_line );
+        } else {
+            $first_line = [];
+        }
         if(!empty($first_line[0])) {
             if (strpos($first_line[0], 'style="') !== false &&
                 strpos($first_line[0], 'id="block_' . $block['attrs']['customId'] . '"') !== false) {
@@ -541,7 +545,7 @@ $block['attrs']['customId'] = str_replace( 'anchor_', '', $block['attrs']['custo
         return $content;
     }
 
-    if ( ! empty( $block['attrs']['image_block_id'] ) ) {
+    if ( isset($block['attrs']) && ! empty( $block['attrs']['image_block_id'] ) ) {
         // Additional image_block_id processing if needed.
     }
 
@@ -587,8 +591,8 @@ function stepfox_styling() {
         wp_enqueue_style( 'stepfox-responsive-style' );
 
         foreach ( $all_blocks as $block ) {
-            if ( ( $block['blockName'] === 'core/block' && ! empty( $block['attrs']['ref'] ) ) ||
-                ( $block['blockName'] === 'core/navigation' && ! empty( $block['attrs']['ref'] ) ) ) {
+            if ( ( $block['blockName'] === 'core/block' && isset($block['attrs']) && ! empty( $block['attrs']['ref'] ) ) ||
+                ( $block['blockName'] === 'core/navigation' && isset($block['attrs']) && ! empty( $block['attrs']['ref'] ) ) ) {
                 $content = get_post_field( 'post_content', $block['attrs']['ref'] );
                 $reusable_blocks = parse_blocks( $content );
                 $all_reusable_blocks = search( $reusable_blocks, 'blockName' );
@@ -608,18 +612,32 @@ add_action( 'wp_head', 'stepfox_styling' );
 
 
 function get_template_parts_as_content($block) {
+    // Safety check: ensure block is properly structured
+    if (!is_array($block) || !isset($block['blockName'])) {
+        return '';
+    }
+    
     $template_parts_content = '';
-    if ( $block['blockName'] == 'core/template-part' ) {
-        $template_part = get_block_template( $block['attrs']['theme'] . '//' . $block['attrs']['slug'], 'wp_template_part' );
-        $template_part_content = $template_part->content;
-        $template_blocks = parse_blocks( $template_part_content );
-        $all_template_blocks = search( $template_blocks, 'blockName' );
-        $template_parts_content .= $template_part_content;
-        foreach ( $all_template_blocks as $template_block ) {
-            if ( $template_block['blockName'] == 'core/template-part' ) {
-                $template_part_1 = get_block_template( $template_block['attrs']['theme'] . '//' . $template_block['attrs']['slug'], 'wp_template_part' );
-                $template_part_content_1 = $template_part_1->content;
-                $template_parts_content .= $template_part_content_1;
+    if ( $block['blockName'] == 'core/template-part' && isset($block['attrs']) ) {
+        $theme = isset($block['attrs']['theme']) ? $block['attrs']['theme'] : '';
+        $slug = isset($block['attrs']['slug']) ? $block['attrs']['slug'] : '';
+        $template_part = get_block_template( $theme . '//' . $slug, 'wp_template_part' );
+        if ( $template_part && isset($template_part->content) ) {
+            $template_part_content = $template_part->content;
+            $template_blocks = parse_blocks( $template_part_content );
+            $all_template_blocks = search( $template_blocks, 'blockName' );
+            $template_parts_content .= $template_part_content;
+            
+            foreach ( $all_template_blocks as $template_block ) {
+            if ( $template_block['blockName'] == 'core/template-part' && isset($template_block['attrs']) ) {
+                $theme = isset($template_block['attrs']['theme']) ? $template_block['attrs']['theme'] : '';
+                $slug = isset($template_block['attrs']['slug']) ? $template_block['attrs']['slug'] : '';
+                $template_part_1 = get_block_template( $theme . '//' . $slug, 'wp_template_part' );
+                if ( $template_part_1 && isset($template_part_1->content) ) {
+                    $template_part_content_1 = $template_part_1->content;
+                    $template_parts_content .= $template_part_content_1;
+                }
+            }
             }
         }
     }
@@ -627,6 +645,11 @@ function get_template_parts_as_content($block) {
 }
 
 function decode_css_var( $input ) {
+    // Safety check for null or non-string input
+    if ( empty($input) || !is_string($input) ) {
+        return $input;
+    }
+    
     // Check if the string starts with "var:"
     if ( strpos( $input, 'var:' ) === 0 ) {
         // Remove the "var:" prefix.
@@ -642,6 +665,16 @@ function decode_css_var( $input ) {
 }
 
 function inline_styles_for_blocks($block) {
+    
+    // Safety check: ensure block is properly structured
+    if (!is_array($block) || !isset($block['blockName'])) {
+        return '';
+    }
+    
+    // Ensure attrs exists and is an array, initialize as empty array if not
+    if (!isset($block['attrs']) || !is_array($block['attrs'])) {
+        $block['attrs'] = [];
+    }
 
     // Check if block has any responsive attributes that would need an ID
     $hasResponsiveAttrs = false;
@@ -727,13 +760,13 @@ function inline_styles_for_blocks($block) {
     }
     
     // If block has responsive attributes but no customId, generate one based on block content hash
-    if ($hasResponsiveAttrs && empty($block['attrs']['customId'])) {
+    if ($hasResponsiveAttrs && isset($block['attrs']) && empty($block['attrs']['customId'])) {
         // Create a consistent ID based on block content and attributes
         $blockHash = md5(serialize($block['attrs']) . $block['blockName'] . serialize($block['innerHTML'] ?? ''));
         $block['attrs']['customId'] = substr($blockHash, 0, 8);
     }
 
-    if ( ! empty( $block['attrs']['customId'] ) || ! empty( $block['attrs']['image_block_id'] ) ) {
+    if ( isset($block['attrs']) && ( ! empty( $block['attrs']['customId'] ) || ! empty( $block['attrs']['image_block_id'] ) ) ) {
 
         // Set width if desktop width is provided.
         if ( ! empty( $block['attrs']['width_desktop'] ) ) {
@@ -1976,8 +2009,8 @@ function stepfox_block_scripts() {
         wp_enqueue_style( 'stepfox-responsive-style' );
 
         foreach ( $all_blocks as $block ) {
-            if ( ( $block['blockName'] === 'core/block' && ! empty( $block['attrs']['ref'] ) ) ||
-                ( $block['blockName'] === 'core/navigation' && ! empty( $block['attrs']['ref'] ) ) ) {
+            if ( ( $block['blockName'] === 'core/block' && isset($block['attrs']) && ! empty( $block['attrs']['ref'] ) ) ||
+                ( $block['blockName'] === 'core/navigation' && isset($block['attrs']) && ! empty( $block['attrs']['ref'] ) ) ) {
                 $content = get_post_field( 'post_content', $block['attrs']['ref'] );
                 $reusable_blocks = parse_blocks( $content );
                 $all_reusable_blocks = search( $reusable_blocks, 'blockName' );
@@ -2009,8 +2042,14 @@ function stepfox_block_scripts() {
 add_action( 'wp_head', 'stepfox_block_scripts' );
 
 function inline_scripts_for_blocks($block) {
+    // Safety check: ensure block is properly structured
+    if (!is_array($block) || !isset($block['attrs']) || !is_array($block['attrs'])) {
+        return '';
+    }
+    
     if(!empty($block['attrs']['custom_js'])) {
-        return str_replace('this_block', '#block_' . $block['attrs']['customId'], $block['attrs']['custom_js']);
+        $customId = isset($block['attrs']['customId']) ? $block['attrs']['customId'] : 'default-block-id';
+        return str_replace('this_block', '#block_' . $customId, $block['attrs']['custom_js']);
     }
     return '';
 }

@@ -28,6 +28,11 @@ function myplugin_extend_core_social_links_defaults( $args, $name ) {
 }
 add_filter( 'register_block_type_args', 'myplugin_extend_core_social_links_defaults', 10, 2 );
 function myplugin_extend_social_links_share( $block_content, $block ) {
+    // Safety check: ensure block is properly structured
+    if (!is_array($block) || !isset($block['blockName']) || !isset($block['attrs']) || !is_array($block['attrs'])) {
+        return $block_content;
+    }
+    
     // Process only if this is a core/social-link block.
     if ( 'core/social-link' === $block['blockName'] ) {
         // Check if shareThisPost is enabled on this block.

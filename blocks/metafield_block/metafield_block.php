@@ -236,8 +236,8 @@ function query_object_for_gutenberg_query()
         // Sort fields: built-in first, then registered, then ACF, then custom
         usort($fields[$post_type->name], function($a, $b) {
             $order = ['built-in' => 1, 'registered' => 2, 'ACF' => 3, 'custom' => 4];
-            $a_type = preg_match('/\((.*?)\)/', $a['label'], $matches_a) ? $matches_a[1] : 'custom';
-            $b_type = preg_match('/\((.*?)\)/', $b['label'], $matches_b) ? $matches_b[1] : 'custom';
+            $a_type = (!empty($a['label']) && preg_match('/\((.*?)\)/', $a['label'], $matches_a)) ? $matches_a[1] : 'custom';
+            $b_type = (!empty($b['label']) && preg_match('/\((.*?)\)/', $b['label'], $matches_b)) ? $matches_b[1] : 'custom';
             
             $a_priority = $order[$a_type] ?? 5;
             $b_priority = $order[$b_type] ?? 5;

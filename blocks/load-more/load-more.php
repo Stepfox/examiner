@@ -153,8 +153,9 @@ function cool_scriptzzzzzzzz()
                 foreach ($block['innerBlocks'] as $child_block) {
                     if ($child_block['blockName'] === 'myplugin/query-loop-load-more') {
 
-                        $all_data[$block['attrs']['customId']] = [
-                            'context' => json_encode($block['attrs']),
+                        $customId = isset($block['attrs']['customId']) ? $block['attrs']['customId'] : 'default-query-id';
+                        $all_data[$customId] = [
+                            'context' => json_encode(isset($block['attrs']) ? $block['attrs'] : []),
                             'query_args' => get_queried_object(),//od parent
                             'paged' => '1',
                             'innerBlocksString' => serialize_blocks($block['innerBlocks']),
@@ -177,6 +178,11 @@ add_action('wp_head', 'cool_scriptzzzzzzzz');
 
 function my_render_query_block_custom($block_content, $block)
 {
+    // Safety check: ensure block is properly structured
+    if (!is_array($block) || !isset($block['blockName'])) {
+        return $block_content;
+    }
+
 //    if (isset($block['blockName']) && 'myplugin/query-loop-load-more' === $block['blockName']) {
 //        echo '<pre>';
 //        var_dump($block);
@@ -185,7 +191,7 @@ function my_render_query_block_custom($block_content, $block)
     // Check if this is a Query Loop block.
     if (isset($block['blockName']) && 'core/query' === $block['blockName']) {
         // Check for our custom attribute.
-        if (isset($block['attrs']['customPostsPerPage']) && !empty($block['attrs']['customPostsPerPage']) && $block['attrs']['query']['inherit'] && get_option('posts_per_page') != $block['attrs']['customPostsPerPage']) {
+        if (isset($block['attrs']['customPostsPerPage']) && !empty($block['attrs']['customPostsPerPage']) && isset($block['attrs']['query']['inherit']) && $block['attrs']['query']['inherit'] && get_option('posts_per_page') != $block['attrs']['customPostsPerPage']) {
 //    var_dump(get_option('posts_per_page').'  ======   '. $block['attrs']['customPostsPerPage']);
             $custom_posts_per_page = absint($block['attrs']['customPostsPerPage']);
 
@@ -213,18 +219,34 @@ function my_render_query_block_custom($block_content, $block)
 
             $post_template = '';
             $columns = '';
-echo '<div ' . my_custom_query_wrapper_attributes($block) . ' id="block_' . esc_attr($block['attrs']['customId']) . '">';
+$customId = isset($block['attrs']['customId']) ? $block['attrs']['customId'] : 'default-block-id';
+echo '<div ' . my_custom_query_wrapper_attributes($block) . ' id="block_' . esc_attr($customId) . '">';
+            
+            // Ensure innerBlocks exists before processing
+            if (!isset($block['innerBlocks']) || !is_array($block['innerBlocks'])) {
+                echo '</div>';
+                return $block_content;
+            }
+            
             foreach ($block['innerBlocks'] as $block_child) {
+                // Ensure block_child is properly structured
+                if (!is_array($block_child) || !isset($block_child['blockName'])) {
+                    continue;
+                }
+                
                 if ($block_child['blockName'] == 'core/post-template') {
                     $post_classes = get_post_class('wp-block-post');
 
                     // Convert the array of classes into a space-separated string.
                     $classes = implode(' ', $post_classes);
 
-                    $post_template = serialize_blocks($block_child['innerBlocks']);
-                    $columns = 'columns-' . $block_child['attrs']['layout']['columnCount'];
+                    // Ensure innerBlocks exists for the child block
+                    $innerBlocks = isset($block_child['innerBlocks']) && is_array($block_child['innerBlocks']) ? $block_child['innerBlocks'] : [];
+                    $post_template = serialize_blocks($innerBlocks);
+                    $columnCount = isset($block_child['attrs']['layout']['columnCount']) ? $block_child['attrs']['layout']['columnCount'] : 1;
+                    $columns = 'columns-' . $columnCount;
                     $get_block_wrapper_attributes = my_custom_wrapper_attributes($block_child);
-                    $child_id = esc_attr($block_child['attrs']['customId']);
+                    $child_id = isset($block_child['attrs']['customId']) ? esc_attr($block_child['attrs']['customId']) : 'default-child-id';
                     // var_dump($get_block_wrapper_attributes);
 
                     if ($query->have_posts()) {
@@ -271,6 +293,13 @@ function my_custom_wrapper_attributes($block)
     $layout = 'list';  // Fallback layout type.
     $container_columns = 2;       // Default container column count (set to 2 by default).
 
+    // Ensure attrs exists before attempting to access it
+    if (!isset($block['attrs']) || !is_array($block['attrs'])) {
+        // Return default wrapper attributes
+        $extra_classes = sprintf('wp-block-post-template is-layout-%s wp-block-post-template-is-layout-%s columns-%d', $layout, $layout, $columns);
+        return get_block_wrapper_attributes(array('class' => $extra_classes));
+    }
+
     // Check for layout attributes in the block.
     if (isset($block['attrs']['layout']) && is_array($block['attrs']['layout'])) {
         if (!empty($block['attrs']['layout']['columnCount'])) {
@@ -309,6 +338,14 @@ function my_custom_query_wrapper_attributes($block)
 {
     // Default to "flow" if no layout is set.
     $layout = 'flow';
+
+    // Ensure attrs exists before attempting to access it
+    if (!isset($block['attrs']) || !is_array($block['attrs'])) {
+        $extra_classes = sprintf('is-layout-%s wp-block-query-is-layout-%s', $layout, $layout);
+        return get_block_wrapper_attributes(array(
+            'class' => 'wp-block-query ' . $extra_classes,
+        ));
+    }
 
     // Check for a layout setting under "displayLayout" or "layout" attributes.
     if (isset($block['attrs']['displayLayout']) && is_array($block['attrs']['displayLayout'])) {
