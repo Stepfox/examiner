@@ -245,6 +245,11 @@ function modify_core_group_block_args( $args, $name ) {
     $safe_add_attr('align_content_tablet', [ "type" => "string", "default" => "" ]);
     $safe_add_attr('align_content_mobile', [ "type" => "string", "default" => "" ]);
     $safe_add_attr('align_content_hover', [ "type" => "string", "default" => "" ]);
+    
+    $safe_add_attr('grid_template_columns_desktop', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('grid_template_columns_tablet', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('grid_template_columns_mobile', [ "type" => "string", "default" => "" ]);
+    $safe_add_attr('grid_template_columns_hover', [ "type" => "string", "default" => "" ]);
 
     // Border properties - Object properties (device_property format)
     $safe_add_attr('desktop_borderStyle', [ "type" => "string", "default" => "" ]);
@@ -691,6 +696,7 @@ function inline_styles_for_blocks($block) {
         'align_items_desktop', 'align_items_tablet', 'align_items_mobile', 'align_items_hover',
         'align_self_desktop', 'align_self_tablet', 'align_self_mobile', 'align_self_hover',
         'align_content_desktop', 'align_content_tablet', 'align_content_mobile', 'align_content_hover',
+        'grid_template_columns_desktop', 'grid_template_columns_tablet', 'grid_template_columns_mobile', 'grid_template_columns_hover',
         
         // Border Properties
         'desktop_borderStyle', 'tablet_borderStyle', 'mobile_borderStyle', 'hover_borderStyle',
@@ -1168,6 +1174,9 @@ if ( ! empty( $block['attrs']['align_self_desktop'] ) ) {
 if ( ! empty( $block['attrs']['align_content_desktop'] ) ) {
     $inlineStyles .= 'align-content:' . $block['attrs']['align_content_desktop'] . ';';
 }
+if ( ! empty( $block['attrs']['grid_template_columns_desktop'] ) ) {
+    $inlineStyles .= 'grid-template-columns:repeat(' . $block['attrs']['grid_template_columns_desktop'] . ', 1fr);';
+}
 
         // Border - Desktop
         if ( ! empty( $block['attrs']['desktop_borderStyle'] ) ) {
@@ -1394,6 +1403,9 @@ if ( ! empty( $block['attrs']['align_self_tablet'] ) ) {
 if ( ! empty( $block['attrs']['align_content_tablet'] ) ) {
     $inlineStyles .= 'align-content:' . $block['attrs']['align_content_tablet'] . ';';
 }
+if ( ! empty( $block['attrs']['grid_template_columns_tablet'] ) ) {
+    $inlineStyles .= 'grid-template-columns:repeat(' . $block['attrs']['grid_template_columns_tablet'] . ', 1fr);';
+}
 
         // Border - Tablet
         if ( ! empty( $block['attrs']['tablet_borderStyle'] ) ) {
@@ -1618,6 +1630,9 @@ if ( ! empty( $block['attrs']['align_self_mobile'] ) ) {
 }
 if ( ! empty( $block['attrs']['align_content_mobile'] ) ) {
     $inlineStyles .= 'align-content:' . $block['attrs']['align_content_mobile'] . ';';
+}
+if ( ! empty( $block['attrs']['grid_template_columns_mobile'] ) ) {
+    $inlineStyles .= 'grid-template-columns:repeat(' . $block['attrs']['grid_template_columns_mobile'] . ', 1fr);';
 }
 
         // Border - Mobile
@@ -1844,6 +1859,9 @@ if ( ! empty( $block['attrs']['pointer_events_mobile'] ) ) {
         }
         if ( ! empty( $block['attrs']['align_content_hover'] ) ) {
             $inlineStyles .= 'align-content:' . $block['attrs']['align_content_hover'] . ';';
+        }
+        if ( ! empty( $block['attrs']['grid_template_columns_hover'] ) ) {
+            $inlineStyles .= 'grid-template-columns:repeat(' . $block['attrs']['grid_template_columns_hover'] . ', 1fr);';
         }
 
         // Border - Hover

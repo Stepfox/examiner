@@ -71,6 +71,7 @@
             align_items_desktop: { type: "string", default: "" },
             align_self_desktop: { type: "string", default: "" },
             align_content_desktop: { type: "string", default: "" },
+            grid_template_columns_desktop: { type: "string", default: "" },
             
             desktop_padding: {
                 type: "object",
@@ -145,6 +146,7 @@
             align_items_tablet: { type: "string", default: "" },
             align_self_tablet: { type: "string", default: "" },
             align_content_tablet: { type: "string", default: "" },
+            grid_template_columns_tablet: { type: "string", default: "" },
             
             tablet_padding: {
                 type: "object",
@@ -219,6 +221,7 @@
             align_items_mobile: { type: "string", default: "" },
             align_self_mobile: { type: "string", default: "" },
             align_content_mobile: { type: "string", default: "" },
+            grid_template_columns_mobile: { type: "string", default: "" },
             
             mobile_padding: {
                 type: "object",
@@ -293,6 +296,7 @@
             align_items_hover: { type: "string", default: "" },
             align_self_hover: { type: "string", default: "" },
             align_content_hover: { type: "string", default: "" },
+            grid_template_columns_hover: { type: "string", default: "" },
             
             hover_padding: {
                 type: "object",
@@ -1235,7 +1239,7 @@
                 'width', 'height', 'min_width', 'max_width', 'min_height', 'max_height',
                 'box_sizing', 'visibility', 'float', 'clear', 'z_index', 'order',
                 'top', 'right', 'bottom', 'left', 'borderStyle', 'borderWidth', 'borderColor',
-                'flex_grow', 'align_items', 'align_self', 'align_content',
+                'flex_grow', 'align_items', 'align_self', 'align_content', 'grid_template_columns',
                 'transform', 'transition', 'box_shadow', 'filter', 'opacity', 'cursor',
                 'user_select', 'pointer_events', 'background_color', 'background_image', 
                 'background_size', 'background_position', 'background_repeat'
@@ -1469,6 +1473,19 @@
                             ],
                             onChange: (value) => setAttribute('display', value)
                         })
+                    ),
+                    // Grid Template Columns - Show only when display is grid
+                    getAttribute('display') === 'grid' && el('div', { className: 'input-row' },
+                        el(NumberControl, {
+                            label: 'Grid Columns',
+                            value: getAttribute('grid_template_columns'),
+                            onChange: (value) => setAttribute('grid_template_columns', value),
+                            min: 1,
+                            max: 12,
+                            step: 1,
+                            help: 'Number of columns (creates repeat(X, 1fr))'
+                        }),
+                        el('div', { style: { width: '48%' } }) // Empty div to maintain grid layout
                     ),
                     el('div', { className: 'input-row' },
                         el(UnitControl, {
@@ -2523,6 +2540,7 @@
                 ${getAttr('align_items_desktop') ? `align-items: ${getAttr('align_items_desktop')} !important;` : ''}
                 ${getAttr('align_self_desktop') ? `align-self: ${getAttr('align_self_desktop')} !important;` : ''}
                 ${getAttr('align_content_desktop') ? `align-content: ${getAttr('align_content_desktop')} !important;` : ''}
+                ${getAttr('grid_template_columns_desktop') ? `grid-template-columns: repeat(${getAttr('grid_template_columns_desktop')}, 1fr) !important;` : ''}
                 ${getAttr('desktop_borderStyle') ? `border-style: ${getAttr('desktop_borderStyle')} !important;` : ''}
                 ${getAttr('desktop_borderColor') ? `border-color: ${getAttr('desktop_borderColor')} !important;` : ''}
                 ${getAttr('borderWidth_desktop') ? `border-width: ${getAttr('borderWidth_desktop')} !important;` : ''}
@@ -2602,6 +2620,7 @@
                     ${getAttr('align_items_tablet') ? `align-items: ${getAttr('align_items_tablet')} !important;` : ''}
                     ${getAttr('align_self_tablet') ? `align-self: ${getAttr('align_self_tablet')} !important;` : ''}
                     ${getAttr('align_content_tablet') ? `align-content: ${getAttr('align_content_tablet')} !important;` : ''}
+                ${getAttr('grid_template_columns_tablet') ? `grid-template-columns: repeat(${getAttr('grid_template_columns_tablet')}, 1fr) !important;` : ''}
                     ${getAttr('box_shadow_tablet') ? `box-shadow: ${getAttr('box_shadow_tablet')} !important;` : ''}
                     ${getAttr('filter_tablet') ? `filter: ${getAttr('filter_tablet')} !important;` : ''}
                     ${getAttr('cursor_tablet') ? `cursor: ${getAttr('cursor_tablet')} !important;` : ''}
@@ -2651,6 +2670,7 @@
                     ${getAttr('mobile_justify') ? `justify-content: ${getAttr('mobile_justify')} !important;` : ''}
                     ${getAttr('mobile_flexWrap') ? `flex-wrap: ${getAttr('mobile_flexWrap')} !important;` : ''}
                     ${getAttr('mobile_flex_grow') ? `flex-grow: ${getAttr('mobile_flex_grow')} !important;` : ''}
+                    ${getAttr('grid_template_columns_mobile') ? `grid-template-columns: repeat(${getAttr('grid_template_columns_mobile')}, 1fr) !important;` : ''}
                     ${getAttr('textAlign_mobile') ? `text-align: ${getAttr('textAlign_mobile')} !important;` : ''}
                     ${getAttr('transform_mobile') ? `transform: ${getAttr('transform_mobile')} !important;` : ''}
                     ${getAttr('transition_mobile') ? `transition: ${getAttr('transition_mobile')} !important;` : ''}
@@ -2700,6 +2720,7 @@
                 ${getAttr('hover_justify') ? `justify-content: ${getAttr('hover_justify')} !important;` : ''}
                 ${getAttr('hover_flexWrap') ? `flex-wrap: ${getAttr('hover_flexWrap')} !important;` : ''}
                 ${getAttr('hover_flex_grow') ? `flex-grow: ${getAttr('hover_flex_grow')} !important;` : ''}
+                ${getAttr('grid_template_columns_hover') ? `grid-template-columns: repeat(${getAttr('grid_template_columns_hover')}, 1fr) !important;` : ''}
                 ${getAttr('textAlign_hover') ? `text-align: ${getAttr('textAlign_hover')} !important;` : ''}
                 ${getAttr('transform_hover') ? `transform: ${getAttr('transform_hover')} !important;` : ''}
                 ${getAttr('transition_hover') ? `transition: ${getAttr('transition_hover')} !important;` : ''}

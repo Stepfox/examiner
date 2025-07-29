@@ -229,12 +229,12 @@ echo '<div ' . my_custom_query_wrapper_attributes($block) . ' id="block_' . esc_
 
                     if ($query->have_posts()) {
 
-                        echo '<ul ' . $get_block_wrapper_attributes . ' >';
+                        echo '<ul ' . $get_block_wrapper_attributes . ' id="block_' . esc_attr($child_id) . '">';
                         // (This example simply outputs the post titles.)
                         while ($query->have_posts()) {
                             $query->the_post();
                             //$post_template = '<li class="' . esc_attr( $classes ) . '">'.do_blocks(serialize_blocks($block_child['innerBlocks'])).'</li>';
-                            echo '<li class="' . esc_attr($classes) . '" id="block_' . esc_attr($child_id) . '">' . do_blocks($post_template) . '</li>';
+                            echo '<li class="' . esc_attr($classes) . '">' . do_blocks($post_template) . '</li>';
 
                         }
                         echo '</ul>';
