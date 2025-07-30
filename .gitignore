@@ -1,0 +1,25 @@
+# WordPress
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+
+# Development files
+*.backup
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node modules (if any)
+node_modules/
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
