@@ -92,7 +92,7 @@ function examiner_scripts() {
 add_action('wp_enqueue_scripts', 'examiner_scripts');
 
 /**
- * Enqueue admin styles (only when necessary)
+ * Add admin styles for the site editor interface
  */
 function examiner_admin_styles() {
     // Only load on site editor pages
@@ -102,40 +102,15 @@ function examiner_admin_styles() {
     
     $screen = get_current_screen();
     if ($screen && strpos($screen->id, 'site-editor') !== false) {
-        wp_add_inline_style('wp-admin', '
-            .edit-site-layout__area .block-editor-iframe__container iframe {
-                width: 1997px !important;
-                transform: scale(0.6);
-                transform-origin: top left;
-            }
-            .edit-site-layout__area .edit-site-visual-editor__preview {
-                overflow: auto;
-            }
-        ');
+        wp_enqueue_style(
+            'examiner-admin-editor',
+            get_template_directory_uri() . '/assets/css/admin-editor.css',
+            array('wp-admin'),
+            wp_get_theme()->get('Version')
+        );
     }
 }
 add_action('admin_enqueue_scripts', 'examiner_admin_styles');
-
-/**
- * Disable srcset for cover blocks to prevent layout issues
- * 
- * @param array $attr Image attributes
- * @param object $attachment Attachment object
- * @param string $size Image size
- * @return array Modified attributes
- */
-function examiner_disable_cover_block_srcset($attr, $attachment, $size) {
-    // Security check: ensure we have valid input
-    if (!is_array($attr) || !isset($attr['class'])) {
-        return $attr;
-    }
-    
-    if (strpos($attr['class'], 'wp-block-cover') !== false) {
-        unset($attr['srcset']);
-    }
-    return $attr;
-}
-add_filter('wp_get_attachment_image_attributes', 'examiner_disable_cover_block_srcset', 10, 3);
 
 /**
  * Include TGM Plugin Activation for plugin recommendations

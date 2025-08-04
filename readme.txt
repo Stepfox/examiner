@@ -115,6 +115,10 @@ Go to Appearance > Site Editor, select "Templates" and choose "Front Page" to cu
 
 Demo content may be available separately. Check with the theme developer for demo content files and import instructions.
 
+= Full Site Editing (FSE) Theme =
+
+As a modern Full Site Editing (FSE) block theme, 'Examiner' utilizes block templates. The standard WordPress functions wp_head(), wp_footer(), and body_class() are handled automatically by the WordPress core during the rendering of these templates and do not need to be called manually.
+
 == Screenshots ==
 
 1. Homepage with featured articles and clean layout

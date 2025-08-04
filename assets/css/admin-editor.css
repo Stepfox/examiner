@@ -1,0 +1,8 @@
+.edit-site-layout__area .block-editor-iframe__container iframe {
+    width: 1997px !important;
+    transform: scale(0.6);
+    transform-origin: top left;
+}
+.edit-site-layout__area .edit-site-visual-editor__preview {
+    overflow: auto;
+}
