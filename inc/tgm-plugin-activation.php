@@ -37,6 +37,14 @@ function examiner_register_required_plugins() {
             'external_url'       => '',
             'is_callable'        => '',
         ),
+        array(
+            'name'               => 'One Click Demo Import',
+            'slug'               => 'one-click-demo-import',
+            // From WordPress.org repo – no source needed
+            'required'           => false,
+            'force_activation'   => false,
+            'force_deactivation' => false,
+        ),
     );
 
     /**

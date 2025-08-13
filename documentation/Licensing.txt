@@ -1,0 +1,52 @@
+Examiner Theme & Stepfox Looks Plugin – Licensing and Attributions
+
+This file lists third-party assets used by the theme and bundled plugin. Ensure this file ships inside your final submission (place a copy at the root of your "main_files" package as Licensing.txt).
+
+1) Fonts (SIL Open Font License 1.1 unless otherwise noted)
+- Advent Pro
+  Source: https://fonts.google.com/specimen/Advent+Pro
+  Files: examiner/assets/fonts/advent-pro/*.woff2
+  License: SIL Open Font License 1.1 – https://scripts.sil.org/OFL
+
+- Asap
+  Source: https://fonts.google.com/specimen/Asap
+  Files: examiner/assets/fonts/asap/*.woff2
+  License: SIL Open Font License 1.1
+
+- Montserrat
+  Source: https://fonts.google.com/specimen/Montserrat
+  Files: examiner/assets/fonts/montserrat/*.woff2
+  License: SIL Open Font License 1.1
+
+- Oswald
+  Source: https://fonts.google.com/specimen/Oswald
+  Files: examiner/assets/fonts/oswald/*.woff2
+  License: SIL Open Font License 1.1
+
+- Raleway
+  Source: https://fonts.google.com/specimen/Raleway
+  Files: examiner/assets/fonts/raleway/*.woff2
+  License: SIL Open Font License 1.1
+
+- Roboto
+  Source: https://fonts.google.com/specimen/Roboto
+  Files: examiner/assets/fonts/roboto/*.woff2
+  License: SIL Open Font License 1.1
+
+2) JavaScript Libraries / PHP Libraries
+- TGM Plugin Activation
+  Source: https://github.com/TGMPA/TGM-Plugin-Activation
+  Files: examiner/inc/class-tgm-plugin-activation.php, examiner/inc/tgm-plugin-activation.php
+  License: GPL-2.0 or later – https://www.gnu.org/licenses/gpl-2.0.html
+
+3) Images
+- Demo images in examiner/assets/images/* are provided for preview purposes only. Replace with your own licensed images before live use.
+  Files: examiner/assets/images/*.jpg, *.png
+  If you intend to ship any images, provide the exact source URL and license here. Otherwise, declare they are placeholders not included in the final downloadable package.
+
+4) WordPress Core
+- WordPress is GPLv2 or later. All theme and plugin code is released under GPLv2+.
+
+Notes
+- If you add or remove any assets, update this document accordingly.
+- Include complete license texts for third-party assets if required by their licenses.
