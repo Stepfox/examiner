@@ -3,7 +3,7 @@
 Contributors: stepfox
 Tags: blog, news, two-columns, right-sidebar, custom-background, custom-colors, custom-header, custom-logo, custom-menu, editor-style, featured-images, flexible-header, footer-widgets, full-width-template, rtl-language-support, sticky-post, theme-options, threaded-comments, translation-ready, block-styles, wide-blocks, accessibility-ready
 Requires at least: 6.0
-Tested up to: 6.7
+Tested up to: 6.8
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
@@ -48,7 +48,6 @@ Examiner is a professional, responsive news theme designed specifically for mode
 * Firefox (latest)
 * Safari (latest)
 * Edge (latest)
-* Internet Explorer 11+
 
 == Installation ==
 

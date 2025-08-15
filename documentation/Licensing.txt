@@ -50,3 +50,8 @@ This file lists third-party assets used by the theme and bundled plugin. Ensure 
 Notes
 - If you add or remove any assets, update this document accordingly.
 - Include complete license texts for third-party assets if required by their licenses.
+
+
+
+
+

@@ -387,7 +387,7 @@
 					"background": "var(--wp--preset--color--primary)",
 					"text": "var(--wp--preset--color--white)"
 				},
-				"css": "&:hover{background:green;}",
+            "css": "&:hover{background: var(--wp--preset--color--primary);}",
 				"elements": {
 					"link": {
 						"color": {
@@ -743,11 +743,11 @@
 					"fontSize": "20px"
 				}
 			},
-			"h6": {
-				"typography": {
-					"fontSize": "10px"
-				}
-			},
+            "h6": {
+                "typography": {
+                    "fontSize": "12px"
+                }
+            },
 			"heading": {
 				"color": {
 					"text": "var(--wp--preset--color--heading)"
