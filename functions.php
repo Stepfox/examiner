@@ -123,3 +123,11 @@ function examiner_load_tgmpa() {
     }
 }
 add_action('after_setup_theme', 'examiner_load_tgmpa');
+
+/**
+ * Load GitHub Theme Updater
+ */
+require_once get_template_directory() . '/inc/class-examiner-theme-updater.php';
+if (class_exists('Examiner_Theme_Updater')) {
+    Examiner_Theme_Updater::init();
+}
